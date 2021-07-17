@@ -10,6 +10,11 @@ struct OutputFileOption : Option
 
 	}
 
+	OutputFileOption()
+	{
+		
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::OutputFile;
@@ -18,5 +23,12 @@ struct OutputFileOption : Option
 	virtual std::string ToString() override
 	{
 		return "\"" + url + "\"";
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = true;
+		std::cout << "Enter output file:";
+		std::cin >> url;
 	}
 };

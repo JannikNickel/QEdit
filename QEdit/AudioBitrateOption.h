@@ -13,6 +13,11 @@ struct AudioBitrateOption : Option
 
 	}
 
+	AudioBitrateOption()
+	{
+
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::Output;
@@ -21,5 +26,15 @@ struct AudioBitrateOption : Option
 	virtual std::string ToString() override
 	{
 		return "-b:a " + std::to_string(bitrate) + "k";
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Change audio bitrate?", false);
+		if(enabled)
+		{
+			std::cout << "Enter bitrate (kbit/s):";
+			std::cin >> bitrate;
+		}
 	}
 };

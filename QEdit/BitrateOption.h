@@ -14,6 +14,11 @@ struct BitrateOption : Option
 
 	}
 
+	BitrateOption()
+	{
+
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::Output;
@@ -22,5 +27,15 @@ struct BitrateOption : Option
 	virtual std::string ToString() override
 	{
 		return "-b:v " + std::to_string(bitrate) + "k";
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Change bitrate?", false);
+		if(enabled)
+		{
+			std::cout << "Enter bitrate (kbit/s):";
+			std::cin >> bitrate;
+		}
 	}
 };

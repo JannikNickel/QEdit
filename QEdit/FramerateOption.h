@@ -10,6 +10,11 @@ struct FramerateOption : Option
 
 	}
 
+	FramerateOption()
+	{
+		
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::Output;
@@ -18,5 +23,15 @@ struct FramerateOption : Option
 	virtual std::string ToString() override
 	{
 		return "-r " + std::to_string(fps);
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Change framerate?", false);
+		if(enabled)
+		{
+			std::cout << "Enter fps:";
+			std::cin >> fps;
+		}
 	}
 };

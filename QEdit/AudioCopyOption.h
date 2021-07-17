@@ -15,4 +15,9 @@ struct AudioCopyOption : Option
 	{
 		return "-c:a copy";
 	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Copy raw audio?", false);
+	}
 };

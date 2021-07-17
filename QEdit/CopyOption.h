@@ -15,4 +15,9 @@ struct CopyOption : Option
 	{
 		return "-c:v copy";
 	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Copy raw video?", false);
+	}
 };

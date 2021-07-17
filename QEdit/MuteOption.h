@@ -3,13 +3,6 @@
 
 struct MuteOption : Option
 {
-	bool mute = false;
-
-	MuteOption(bool mute) : mute(mute)
-	{
-
-	}
-
 	virtual OptionType GetType() override
 	{
 		return OptionType::Global;
@@ -17,7 +10,12 @@ struct MuteOption : Option
 
 	virtual std::string ToString() override
 	{
-		return std::string((mute == true ? "-an" : ""));
+		return "-an";
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Mute audio?", false);
 	}
 };
 

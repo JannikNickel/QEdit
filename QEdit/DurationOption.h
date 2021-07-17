@@ -10,6 +10,11 @@ struct DurationOption : Option
 
 	}
 
+	DurationOption()
+	{
+
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::Output;
@@ -18,6 +23,16 @@ struct DurationOption : Option
 	virtual std::string ToString() override
 	{
 		return std::string("-t ") + std::to_string(seconds);
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Set duration?", false);
+		if(enabled)
+		{
+			std::cout << "Enter duration:";
+			std::cin >> seconds;
+		}
 	}
 };
 

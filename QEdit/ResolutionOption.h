@@ -11,6 +11,11 @@ struct ResolutionOption : Option
 
 	}
 
+	ResolutionOption()
+	{
+		
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::Output;
@@ -19,5 +24,17 @@ struct ResolutionOption : Option
 	virtual std::string ToString() override
 	{
 		return "-s " + std::to_string(width) + "x" + std::to_string(height);
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Change resolution?", false);
+		if(enabled)
+		{
+			std::cout << "Enter width:";
+			std::cin >> width;
+			std::cout << "Enter height:";
+			std::cin >> height;
+		}
 	}
 };

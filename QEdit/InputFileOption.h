@@ -10,6 +10,11 @@ struct InputFileOption : Option
 
 	}
 
+	InputFileOption()
+	{
+		
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::InputFile;
@@ -18,5 +23,12 @@ struct InputFileOption : Option
 	virtual std::string ToString() override
 	{
 		return "-i \"" + url + "\"";
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = true;
+		std::cout << "Enter input file: ";
+		std::cin >> url;
 	}
 };

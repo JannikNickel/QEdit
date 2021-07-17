@@ -10,6 +10,11 @@ struct OverwriteOption : Option
 		
 	}
 
+	OverwriteOption()
+	{
+		
+	}
+
 	virtual OptionType GetType() override
 	{
 		return OptionType::Global;
@@ -18,6 +23,11 @@ struct OverwriteOption : Option
 	virtual std::string ToString() override
 	{
 		return std::string("-") + (overwriteFiles == true ? "y" : "n");
+	}
+
+	virtual void ConsoleInput() override
+	{
+		enabled = ConsoleHelper::YesNoDialog("Overwrite existing files?", true);
 	}
 };
 

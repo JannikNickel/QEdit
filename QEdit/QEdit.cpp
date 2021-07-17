@@ -25,16 +25,29 @@ int main()
 		OptionType::OutputFile
 	};
 
-	//TODO read options here, show UI or console menu
-	options.push_back(new OverwriteOption(true));
-	options.push_back(new InputFileOption("D:\\Desktop\\RUST 2021.07.11 - 01.54.44.12.DVR.mp4"));
-	options.push_back(new OutputFileOption("D:\\Desktop\\output.mp4"));
-	options.push_back(new FramerateOption(60));
-	options.push_back(new StartTimeOption(15.5f));
-	options.push_back(new DurationOption(10.75f));
-	options.push_back(new BitrateOption(7500));
-	options.push_back(new MuteOption(true));
-	options.push_back(new ResolutionOption(1280, 720));
+	InputFileOption* inOption = new InputFileOption();
+	options.push_back(inOption);
+	options.push_back(new StartTimeOption());
+	options.push_back(new DurationOption());
+	options.push_back(new ResolutionOption());
+	options.push_back(new FramerateOption());
+	options.push_back(new BitrateOption());
+	options.push_back(new CopyOption());
+	options.push_back(new MuteOption());
+	options.push_back(new AudioBitrateOption());
+	options.push_back(new AudioCopyOption());
+	OutputFileOption* outOption = new OutputFileOption();
+	options.push_back(outOption);
+	options.push_back(new OverwriteOption());
+
+	for(Option* op : options)
+	{
+		op->ConsoleInput();
+	}
+	if(outOption->url.empty())
+	{
+		outOption->url = inOption->url;
+	}
 
 	std::string ffmpegPath = GetWorkingDirectory() + "\\lib\\ffmpeg\\ffmpeg.exe";
 	std::string cmd = ffmpegPath;
@@ -42,7 +55,7 @@ int main()
 	{
 		for(Option* op : options)
 		{
-			if(op != nullptr && op->GetType() == type)
+			if(op != nullptr && op->enabled == true && op->GetType() == type)
 			{
 				std::string opString = op->ToString();
 				if(opString.empty() == false)
