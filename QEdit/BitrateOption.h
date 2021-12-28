@@ -6,8 +6,9 @@ struct BitrateOption : Option
 	/// <summary>
 	/// Bitrate in kbit/s
 	/// </summary>
-	unsigned int bitrate;
+	unsigned int bitrate = 0;
 	//VBR = -b:v 0k (recommended), -minrate 0k (min), -maxrate 0k (max)
+	int mode = 0;//0 = CBR, 1 = VBR
 
 	BitrateOption(unsigned int bitrate) : bitrate(bitrate)
 	{
@@ -19,23 +20,65 @@ struct BitrateOption : Option
 
 	}
 
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::Output;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return "-b:v " + std::to_string(bitrate) + "k";
 	}
 
-	virtual void ConsoleInput() override
+	std::string UICategory() override
 	{
-		enabled = ConsoleHelper::YesNoDialog("Change bitrate?", false);
-		if(enabled)
-		{
-			std::cout << "Enter bitrate (kbit/s):";
-			std::cin >> bitrate;
-		}
+		return videoUICategory;
 	}
+
+	std::vector<ftxui::Component> GenUIComponents() override
+	{
+		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Bitrate", &enabled), ftxui::Input(&ui_BitrateInput, ""), ftxui::Radiobox(&ui_ModeOptions, &mode) };
+	}
+
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	{
+		return std::vector<ftxui::Element>
+		{
+			ftxui::vbox(
+				ftxui::hbox(
+					ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth),
+					ftxui::flex_shrink(ftxui::text("Bitrate (kbit/s): ")),
+					ftxui::flex(components[1]->Render()) | ftxui::bgcolor(ui_FieldBgColor)
+				),
+				ftxui::hbox(
+					ftxui::flex(ftxui::text("")) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth + 1),
+					ftxui::flex(components[2]->Render())
+				)
+			)
+		};
+	}
+
+	bool ReadUIValues(std::string& error) override
+	{
+		//enabled is already set
+		if(enabled == false)
+		{
+			return true;
+		}
+		try
+		{
+			bitrate = (unsigned int)(std::stoi(ui_BitrateInput));
+		}
+		catch(const std::exception&)
+		{
+			bitrate = 0;
+			error = "Invalid video bitrate input, expected integer";
+			return false;
+		}
+		return true;
+	}
+
+private:
+	std::string ui_BitrateInput;
+	const std::vector<std::string> ui_ModeOptions = { "CBR", "VBR" };
 };

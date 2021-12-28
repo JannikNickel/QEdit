@@ -3,31 +3,41 @@
 
 struct OverwriteOption : Option
 {
-	bool overwriteFiles = true;
 
-	OverwriteOption(bool overwriteFiles) : overwriteFiles(overwriteFiles)
-	{
-		
-	}
-
-	OverwriteOption()
-	{
-		
-	}
-
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::Global;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
-		return std::string("-") + (overwriteFiles == true ? "y" : "n");
+		return std::string("-") + (enabled == true ? "y" : "n");
 	}
 
-	virtual void ConsoleInput() override
+	std::string UICategory() override
 	{
-		enabled = ConsoleHelper::YesNoDialog("Overwrite existing files?", true);
+		return outputUICategory;
+	}
+
+	std::vector<ftxui::Component> GenUIComponents() override
+	{
+		return std::vector<ftxui::Component> { ftxui::Checkbox("Overwrite Output", &enabled) };
+	}
+
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	{
+		return std::vector<ftxui::Element>
+		{
+			ftxui::hbox(
+				ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth)
+			)
+		};
+	}
+
+	bool ReadUIValues(std::string& error) override
+	{
+		//enabled is already set
+		return true;
 	}
 };
 

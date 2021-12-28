@@ -6,18 +6,13 @@
 /// </summary>
 struct AudioCopyOption : Option
 {
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::Output;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return "-c:a copy";
-	}
-
-	virtual void ConsoleInput() override
-	{
-		enabled = ConsoleHelper::YesNoDialog("Copy raw audio?", false);
 	}
 };

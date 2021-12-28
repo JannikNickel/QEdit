@@ -6,18 +6,13 @@
 /// </summary>
 struct CopyOption : Option
 {
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::Output;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return "-c:v copy";
-	}
-
-	virtual void ConsoleInput() override
-	{
-		enabled = ConsoleHelper::YesNoDialog("Copy raw video?", false);
 	}
 };

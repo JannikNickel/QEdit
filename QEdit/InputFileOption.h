@@ -1,9 +1,10 @@
 #pragma once
 #include "Option.h"
+#include <filesystem>
 
 struct InputFileOption : Option
 {
-	std::string url;
+	std::string url = "";
 
 	InputFileOption(std::string url) : url(url)
 	{
@@ -15,20 +16,44 @@ struct InputFileOption : Option
 		
 	}
 
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::InputFile;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return "-i \"" + url + "\"";
 	}
 
-	virtual void ConsoleInput() override
+	std::string UICategory() override
 	{
-		enabled = true;
-		std::cout << "Enter input file: ";
-		std::cin >> url;
+		return inputUICategory;
+	}
+
+	std::vector<ftxui::Component> GenUIComponents() override
+	{
+		return std::vector<ftxui::Component> { ftxui::Input(&url, "") };
+	}
+
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	{
+		return std::vector<ftxui::Element>
+		{
+			ftxui::hbox(
+				ftxui::flex_shrink(ftxui::text("Input file: ")),
+				ftxui::flex(components[0]->Render()) | ftxui::bgcolor(ui_FieldBgColor)
+			)
+		};
+	}
+
+	bool ReadUIValues(std::string& error) override
+	{
+		if(std::filesystem::exists(url))
+		{
+			return true;
+		}
+		error = "Input file path doesnt exist";
+		return false;
 	}
 };

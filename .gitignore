@@ -34,3 +34,6 @@
 #Other
 /Build/
 /.vs/
+
+# Libraries
+**/ftxui-0.11.1-win64/

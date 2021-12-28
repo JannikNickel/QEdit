@@ -15,24 +15,59 @@ struct DurationOption : Option
 
 	}
 
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::Output;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return std::string("-t ") + std::to_string(seconds);
 	}
 
-	virtual void ConsoleInput() override
+	std::string UICategory() override
 	{
-		enabled = ConsoleHelper::YesNoDialog("Set duration?", false);
-		if(enabled)
-		{
-			std::cout << "Enter duration:";
-			std::cin >> seconds;
-		}
+		return globalUICategory;
 	}
+
+	std::vector<ftxui::Component> GenUIComponents() override
+	{
+		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Duration", &enabled), ftxui::Input(&ui_SecondsInput, "") };
+	}
+
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	{
+		return std::vector<ftxui::Element>
+		{
+			ftxui::hbox(
+				ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth),
+				ftxui::flex_shrink(ftxui::text("Duration (s): ")),
+				ftxui::flex(components[1]->Render()) | ftxui::bgcolor(ui_FieldBgColor)
+			)
+		};
+	}
+
+	bool ReadUIValues(std::string& error) override
+	{
+		//enabled is already set
+		if(enabled == false)
+		{
+			return true;
+		}
+		try
+		{
+			seconds = std::stof(ui_SecondsInput);
+		}
+		catch(const std::exception&)
+		{
+			seconds = 0;
+			error = "Invalid video duration input, expected float";
+			return false;
+		}
+		return true;
+	}
+
+private:
+	std::string ui_SecondsInput;
 };
 

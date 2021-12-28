@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 enum class OptionType
 {
 	Global = 0,
@@ -8,3 +10,11 @@ enum class OptionType
 	OutputFile = 4
 };
 
+static const OptionType optionOrder[5] =
+{
+	OptionType::Global,
+	OptionType::Input,
+	OptionType::InputFile,
+	OptionType::Output,
+	OptionType::OutputFile
+};

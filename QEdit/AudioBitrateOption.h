@@ -6,7 +6,7 @@ struct AudioBitrateOption : Option
 	/// <summary>
 	/// Bitrate in kbit/s
 	/// </summary>
-	unsigned int bitrate;
+	unsigned int bitrate = 0;
 
 	AudioBitrateOption(unsigned int bitrate) : bitrate(bitrate)
 	{
@@ -18,23 +18,57 @@ struct AudioBitrateOption : Option
 
 	}
 
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::Output;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return "-b:a " + std::to_string(bitrate) + "k";
 	}
 
-	virtual void ConsoleInput() override
+	std::string UICategory() override
 	{
-		enabled = ConsoleHelper::YesNoDialog("Change audio bitrate?", false);
-		if(enabled)
-		{
-			std::cout << "Enter bitrate (kbit/s):";
-			std::cin >> bitrate;
-		}
+		return audioUICategory;
 	}
+
+	std::vector<ftxui::Component> GenUIComponents() override
+	{
+		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Audio Bitrate", &enabled), ftxui::Input(&ui_BitrateInput, "") };
+	}
+
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	{
+		return std::vector<ftxui::Element>
+		{
+			ftxui::hbox(
+				ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth),
+				ftxui::flex_shrink(ftxui::text("Bitrate (kbit/s): ")),
+				ftxui::flex(components[1]->Render()) | ftxui::bgcolor(ui_FieldBgColor) | ftxui::bgcolor(ui_FieldBgColor)
+			)
+		};
+	}
+
+	bool ReadUIValues(std::string& error) override
+	{
+		if(enabled == false)
+		{
+			return true;
+		}
+		try
+		{
+			bitrate = (unsigned int)(std::stoi(ui_BitrateInput));
+		}
+		catch(const std::exception&)
+		{
+			bitrate = 0;
+			error = "Invalid audio bitrate input, expected integer value";
+			return false;
+		}
+		return true;
+	}
+
+private:
+	std::string ui_BitrateInput;
 };

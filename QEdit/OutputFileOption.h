@@ -3,7 +3,7 @@
 
 struct OutputFileOption : Option
 {
-	std::string url;
+	std::string url = "";
 
 	OutputFileOption(std::string url) : url(url)
 	{
@@ -15,20 +15,39 @@ struct OutputFileOption : Option
 		
 	}
 
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::OutputFile;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return "\"" + url + "\"";
 	}
 
-	virtual void ConsoleInput() override
+	std::string UICategory() override
 	{
-		enabled = true;
-		std::cout << "Enter output file:";
-		std::cin >> url;
+		return outputUICategory;
+	}
+
+	std::vector<ftxui::Component> GenUIComponents() override
+	{
+		return std::vector<ftxui::Component> { ftxui::Input(&url, "") };
+	}
+
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	{
+		return std::vector<ftxui::Element>
+		{
+			ftxui::hbox(
+				ftxui::flex_shrink(ftxui::text("Output file: ")),
+				ftxui::flex(components[0]->Render()) | ftxui::bgcolor(ui_FieldBgColor)
+			)
+		};
+	}
+
+	bool ReadUIValues(std::string& error) override
+	{
+		return true;
 	}
 };

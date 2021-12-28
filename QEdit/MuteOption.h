@@ -3,19 +3,40 @@
 
 struct MuteOption : Option
 {
-	virtual OptionType GetType() override
+	OptionType GetType() override
 	{
 		return OptionType::Global;
 	}
 
-	virtual std::string ToString() override
+	std::string ToString() override
 	{
 		return "-an";
 	}
 
-	virtual void ConsoleInput() override
+	std::string UICategory() override
 	{
-		enabled = ConsoleHelper::YesNoDialog("Mute audio?", false);
+		return audioUICategory;
+	}
+
+	std::vector<ftxui::Component> GenUIComponents() override
+	{
+		return std::vector<ftxui::Component> { ftxui::Checkbox("Mute Audio", &enabled) };
+	}
+
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	{
+		return std::vector<ftxui::Element>
+		{
+			ftxui::hbox(
+				ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth)
+			)
+		};
+	}
+
+	bool ReadUIValues(std::string& error) override
+	{
+		//enabled is already set
+		return true;
 	}
 };
 
