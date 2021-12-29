@@ -49,11 +49,6 @@ struct InputFileOption : Option
 
 	bool ReadUIValues(std::string& error) override
 	{
-		if(std::filesystem::exists(url))
-		{
-			return true;
-		}
-		error = "Input file path doesnt exist";
-		return false;
+		return true;
 	}
 };

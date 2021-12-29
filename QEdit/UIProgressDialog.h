@@ -9,6 +9,7 @@ class UIProgressDialog : public UIDialog
 
 public:
 	UIProgressDialog(std::string title) : title(title) { }
+	void SetProgress(float progress);
 	ftxui::Element Render() override;
 	bool IsClosed() override;
 };

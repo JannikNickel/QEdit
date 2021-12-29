@@ -175,6 +175,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FFmpegLogReader.cpp" />
     <ClCompile Include="UIProgressDialog.cpp" />
     <ClCompile Include="QEdit.cpp" />
     <ClCompile Include="UI.cpp" />
@@ -196,9 +197,11 @@
     <ClInclude Include="AudioBitrateOption.h" />
     <ClInclude Include="AudioCopyOption.h" />
     <ClInclude Include="BitrateOption.h" />
+    <ClInclude Include="CmdExecute.h" />
     <ClInclude Include="ConsoleHelper.h" />
     <ClInclude Include="CopyOption.h" />
     <ClInclude Include="DurationOption.h" />
+    <ClInclude Include="FFmpegLogReader.h" />
     <ClInclude Include="FramerateOption.h" />
     <ClInclude Include="InputFileOption.h" />
     <ClInclude Include="MuteOption.h" />

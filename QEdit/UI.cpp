@@ -1,6 +1,7 @@
 #include "UI.h"
 #include "Option.h"
 #include "UIHelper.h"
+#include "UIProgressDialog.h"
 
 #include <vector>
 #include <map>
@@ -34,6 +35,7 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback)
 	}
 
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
+	this->screen = &screen;
 
 	ftxui::Component encodeButton = ftxui::Button("[Encode]", encodeCallback, DefaultButtonOption());
 	components.push_back(encodeButton);
@@ -51,6 +53,10 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback)
 		ftxui::Element titlebar = ftxui::hbox(ftxui::color(ftxui::Color::Aquamarine1, ftxui::text("QEdit")), ftxui::text("  "), loadPresetButton->Render(), ftxui::text("  "), savePresetButton->Render());
 		windows.push_back(titlebar);
 		windows.push_back(ftxui::separator());
+
+		static int x;
+		x++;
+		windows.push_back(ftxui::text(std::to_string(x)));
 
 		for(std::string category : uiCategoryOrder)
 		{
@@ -97,4 +103,9 @@ void UI::ShowDialog(UIDialog* dialog)
 		delete currentDialog;
 	}
 	currentDialog = dialog;
+}
+
+void UI::ForceRedraw()
+{
+	screen->PostEvent(ftxui::Event::Custom);
 }
