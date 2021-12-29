@@ -33,7 +33,7 @@ void CreateStdBufferThread(std::thread& thread, HANDLE& stdRead, std::function<v
 	}
 }
 
-bool CmdExecute(std::string cmd, std::function<void(std::string)> stdOutReadCallback, std::function<void(std::string)> stdErrReadCallback)
+bool CmdExecute(std::string cmd, std::function<void(std::string)> stdOutReadCallback, std::function<void(std::string)> stdErrReadCallback, HANDLE& processHandle)
 {
 	SECURITY_ATTRIBUTES sa = SECURITY_ATTRIBUTES();
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -98,6 +98,7 @@ bool CmdExecute(std::string cmd, std::function<void(std::string)> stdOutReadCall
 		return false;
 	}
 	CloseHandle(pi.hThread);
+	processHandle = pi.hProcess;
 	
 	//Create threads which read the incoming pipe data
 	std::thread stdOutT;

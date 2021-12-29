@@ -1,5 +1,6 @@
 #include "FFmpegLogReader.h"
 #include <regex>
+#include <iostream>
 
 static const std::string durationRegStr = "Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).([0-9]{2})";
 static const std::regex durationRegex = std::regex(durationRegStr);
@@ -47,7 +48,7 @@ std::string ExtractTimeString(std::string source, std::regex regex, int regTrim)
 
 void FFmpegLogReader::Read(std::string data)
 {
-	if(this->duration == 0.0f)
+	if(this->targetDuration == 0.0f)
 	{
 		if(std::regex_search(data, durationRegex))
 		{

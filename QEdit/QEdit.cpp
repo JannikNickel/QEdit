@@ -16,6 +16,7 @@
 //Status fields
 std::atomic<bool> isEncoding = false;
 std::thread* encodingThread = nullptr;
+HANDLE encodingProcess = nullptr;
 
 //Function declarations
 std::string GetWorkingDirectory();
@@ -23,9 +24,13 @@ bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>
 void StartEncoding(UI& ui, OptionCollection options);
 void AdjustInOutPaths(std::string& inputPath, std::string& outputPath);
 std::string BuildFFmpegCmdLine(OptionCollection options);
+BOOL WINAPI ConsoleCtrlHandler(DWORD type);
 
 int main()
 {
+	//Detect console window close
+	SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
+
 	//Create option instances
 	OptionCollection options;
 	options.push_back(new InputFileOption());
@@ -39,8 +44,7 @@ int main()
 	options.push_back(new OutputFileOption());
 	options.push_back(new OverwriteOption());
 	//TODO option for codec (auto, h265, mpeg4, ...)
-
-	std::string _cmd = R"###("E:\Programmieren\C++\QEdit\Build\Debug\x64\lib\ffmpeg.exe" -i "E:\Programmieren\C++\QEdit\Build\Debug\x64\test.mp4" "E:\Programmieren\C++\QEdit\Build\Debug\x64\out.mp4")###";
+	
 
 	//Run UI and define lambda for encode button callback
 	UI ui;
@@ -90,7 +94,7 @@ bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>
 			errors.push_back(error);
 		}
 	}
-	return errors.size() > 0;
+	return errors.size() == 0;
 }
 
 void StartEncoding(UI& ui, OptionCollection options)
@@ -116,7 +120,8 @@ void StartEncoding(UI& ui, OptionCollection options)
 	ui.ShowDialog(pDialog);
 
 	//Begin encoding and read log to update the progress on the UI
-	encodingThread = new std::thread([=](UI* ui, UIProgressDialog* pDialog, float startTime, float duration)
+	encodingProcess = NULL;
+	encodingThread = new std::thread([=](std::string cmd, UI* ui, UIProgressDialog* pDialog, float startTime, float duration)
 	{
 		FFmpegLogReader logReader = FFmpegLogReader(startTime, duration);
 		//For some reason ffmpeg prints status information to std error instead of std out
@@ -126,9 +131,10 @@ void StartEncoding(UI& ui, OptionCollection options)
 			float p = logReader.GetProgress();
 			pDialog->SetProgress(p);
 			ui->ForceRedraw();
-		});
+		}, encodingProcess);
 		isEncoding.store(false);
-	}, &ui, pDialog, startOption->enabled ? startOption->seconds : 0.0f, durationOption->enabled ? durationOption->seconds : 0.0f);
+		delete encodingThread;
+	}, cmd, &ui, pDialog, startOption->enabled ? startOption->seconds : 0.0f, durationOption->enabled ? durationOption->seconds : 0.0f);
 	encodingThread->detach();
 }
 
@@ -183,4 +189,29 @@ std::string BuildFFmpegCmdLine(OptionCollection options)
 		}
 	}
 	return cmd;
+}
+
+BOOL WINAPI ConsoleCtrlHandler(DWORD type)
+{
+	switch(type)
+	{
+		case CTRL_CLOSE_EVENT:
+		{
+			DWORD exitCode = 0;
+			if(encodingThread != nullptr)
+			{
+				if(encodingProcess && GetExitCodeProcess(encodingProcess, &exitCode))
+				{
+					if(exitCode == STILL_ACTIVE)
+					{
+						TerminateProcess(encodingProcess, EXIT_FAILURE);
+					}
+				}
+			}
+			break;
+		}
+		default:
+			break;
+	}
+	return FALSE;
 }
