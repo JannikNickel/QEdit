@@ -5,14 +5,14 @@ struct OutputFileOption : Option
 {
 	std::string url = "";
 
-	OutputFileOption(std::string url) : url(url)
+	OutputFileOption(std::string url) : OutputFileOption()
 	{
-
+		this->url = url;
 	}
 
 	OutputFileOption()
 	{
-		
+		enabled = true;
 	}
 
 	OptionType GetType() override

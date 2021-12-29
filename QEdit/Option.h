@@ -23,6 +23,20 @@ struct Option
 	virtual bool ReadUIValues(std::string& error) = 0;
 };
 
+typedef std::vector<Option*> OptionCollection;
+template<class T> T* FindOption(OptionCollection options)
+{
+	for(Option* op : options)
+	{
+		T* value = dynamic_cast<T*>(op);
+		if(value != nullptr)
+		{
+			return value;
+		}
+	}
+	return nullptr;
+}
+
 static const std::string inputUICategory = "Input";
 static const std::string globalUICategory = "Global";
 static const std::string videoUICategory = "Video";

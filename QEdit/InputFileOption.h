@@ -6,14 +6,14 @@ struct InputFileOption : Option
 {
 	std::string url = "";
 
-	InputFileOption(std::string url) : url(url)
+	InputFileOption(std::string url) : InputFileOption()
 	{
-
+		this->url = url;
 	}
 
 	InputFileOption()
 	{
-		
+		enabled = true;
 	}
 
 	OptionType GetType() override

@@ -54,10 +54,6 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback)
 		windows.push_back(titlebar);
 		windows.push_back(ftxui::separator());
 
-		static int x;
-		x++;
-		windows.push_back(ftxui::text(std::to_string(x)));
-
 		for(std::string category : uiCategoryOrder)
 		{
 			std::vector<ftxui::Element> windowContent;

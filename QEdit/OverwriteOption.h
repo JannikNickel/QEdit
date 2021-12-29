@@ -3,6 +3,10 @@
 
 struct OverwriteOption : Option
 {
+	OverwriteOption(bool enabled = true)
+	{
+		this->enabled = enabled;
+	}
 
 	OptionType GetType() override
 	{
