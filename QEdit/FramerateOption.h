@@ -12,7 +12,7 @@ struct FramerateOption : Option
 
 	FramerateOption()
 	{
-		
+		Reset();
 	}
 
 	OptionType GetType() override
@@ -65,6 +65,13 @@ struct FramerateOption : Option
 			return false;
 		}
 		return true;
+	}
+
+	void Reset() override
+	{
+		enabled = false;
+		fps = 0;
+		ui_FramerateInput = "";
 	}
 
 private:

@@ -12,7 +12,7 @@ struct StartTimeOption : Option
 
 	StartTimeOption()
 	{
-		
+		Reset();
 	}
 
 	OptionType GetType() override
@@ -65,6 +65,13 @@ struct StartTimeOption : Option
 			return false;
 		}
 		return true;
+	}
+
+	void Reset() override
+	{
+		enabled = false;
+		seconds = 0;
+		ui_SecondsInput = "";
 	}
 
 private:

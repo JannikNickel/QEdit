@@ -12,7 +12,7 @@ struct OutputFileOption : Option
 
 	OutputFileOption()
 	{
-		enabled = true;
+		Reset();
 	}
 
 	OptionType GetType() override
@@ -32,7 +32,7 @@ struct OutputFileOption : Option
 
 	std::vector<ftxui::Component> GenUIComponents() override
 	{
-		return std::vector<ftxui::Component> { ftxui::Input(&url, "") };
+		return std::vector<ftxui::Component> { ftxui::Input(&ui_UrlInput, "") };
 	}
 
 	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
@@ -48,6 +48,17 @@ struct OutputFileOption : Option
 
 	bool ReadUIValues(std::string& error) override
 	{
+		url = ui_UrlInput;
 		return true;
 	}
+
+	void Reset() override
+	{
+		enabled = true;
+		url = "";
+		ui_UrlInput = "";
+	}
+
+private:
+	std::string ui_UrlInput = "";
 };

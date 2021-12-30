@@ -10,6 +10,7 @@
 #include "UI.h"
 #include "UIErrorDialog.h"
 #include "UIProgressDialog.h"
+#include "UITextDialog.h"
 #include "FFmpegLogReader.h"
 #include "CmdExecute.h"
 
@@ -21,9 +22,13 @@ HANDLE encodingProcess = nullptr;
 //Function declarations
 std::string GetWorkingDirectory();
 bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>& errors);
+bool ValidateInOutPaths(std::string& in, std::string& out, std::string& error);
+bool ValidateOverwriteSettings(std::string& out, OverwriteOption* option);
+void AddAdditionalOptions(OptionCollection& options);
 void StartEncoding(UI& ui, OptionCollection options);
 void AdjustInOutPaths(std::string& inputPath, std::string& outputPath);
 std::string BuildFFmpegCmdLine(OptionCollection options);
+void EncodingFinished(UI& ui, OptionCollection options, bool success);
 BOOL WINAPI ConsoleCtrlHandler(DWORD type);
 
 int main()
@@ -57,6 +62,27 @@ int main()
 			if(!ValidateEncodingSettings(options, errors))
 			{
 				ui.ShowDialog(new UIErrorDialog(errors));
+				return;
+			}
+
+			//Adjust input/output paths (absolute paths, directories exist, ...)
+			InputFileOption* inOption = FindOption<InputFileOption>(options);
+			OutputFileOption* outOption = FindOption<OutputFileOption>(options);
+			AdjustInOutPaths(inOption->url, outOption->url);
+
+			//Validate input file exists + output dir exists
+			std::string inOutPathError = "";
+			bool validPaths = ValidateInOutPaths(inOption->url, outOption->url, inOutPathError);
+			if(!validPaths)
+			{
+				ui.ShowDialog(new UIErrorDialog(std::vector<std::string> { inOutPathError }));
+				return;
+			}
+
+			//Make sure output file doesnt exist or overwrite flag is set
+			if(!ValidateOverwriteSettings(outOption->url, FindOption<OverwriteOption>(options)))
+			{
+				ui.ShowDialog(new UIErrorDialog(std::vector<std::string> { "Output file already exists! Please set overwrite flag or change output file name..." }));
 				return;
 			}
 
@@ -97,20 +123,63 @@ bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>
 	return errors.size() == 0;
 }
 
+bool ValidateInOutPaths(std::string& in, std::string& out, std::string& error)
+{
+	std::filesystem::path inPath = std::filesystem::path(in);
+	if(!std::filesystem::exists(inPath))
+	{
+		error = "Input file doesnt exist!";
+		return false;
+	}
+	std::filesystem::path outPath = std::filesystem::path(out);
+	std::filesystem::path outDir = outPath.remove_filename();
+	if(!std::filesystem::exists(outDir))
+	{
+		error = "Output directory doesnt exist!";
+		return false;
+	}
+	return true;
+}
+
+bool ValidateOverwriteSettings(std::string& out, OverwriteOption* option)
+{
+	std::filesystem::path outPath = std::filesystem::path(out);
+	if(std::filesystem::exists(outPath) && !option->enabled)
+	{
+		return false;
+	}
+	return true;
+}
+
+void AddAdditionalOptions(OptionCollection& options)
+{
+	//Add video copy option if no video options are enabled
+	BitrateOption* vBitrateOption = FindOption<BitrateOption>(options);
+	FramerateOption* vFramerateOption = FindOption<FramerateOption>(options);
+	ResolutionOption* vResolutionOption = FindOption<ResolutionOption>(options);
+	if(!vBitrateOption->enabled && !vBitrateOption->enabled && !vBitrateOption->enabled)
+	{
+		options.push_back(new CopyOption());
+	}
+
+	MuteOption* muteOption = FindOption<MuteOption>(options);
+	AudioBitrateOption* aBitrateOption = FindOption<AudioBitrateOption>(options);
+	if(!muteOption->enabled && !aBitrateOption->enabled)
+	{
+		options.push_back(new AudioCopyOption());
+	}
+}
+
 void StartEncoding(UI& ui, OptionCollection options)
 {
 	//Set flag to prevent UI from start another encoding
 	isEncoding.store(true);
 
-	InputFileOption* inOption = FindOption<InputFileOption>(options);
-	OutputFileOption* outOption = FindOption<OutputFileOption>(options);
 	StartTimeOption* startOption = FindOption<StartTimeOption>(options);
 	DurationOption* durationOption = FindOption<DurationOption>(options);
 
-	//Adjust input/output paths (absolute paths, directories exist, ...)
-	AdjustInOutPaths(inOption->url, outOption->url);
-
-	//TODO if none of the video or audio options are enabled, set the copy video or copy audio flags
+	//Some options can be added based on the other options settings (for instance audio copy flags if no audio options are enabled)
+	AddAdditionalOptions(options);
 
 	//Fenerate ffmpeg cmd line string from options
 	std::string cmd = BuildFFmpegCmdLine(options);
@@ -121,20 +190,28 @@ void StartEncoding(UI& ui, OptionCollection options)
 
 	//Begin encoding and read log to update the progress on the UI
 	encodingProcess = NULL;
-	encodingThread = new std::thread([=](std::string cmd, UI* ui, UIProgressDialog* pDialog, float startTime, float duration)
+	encodingThread = new std::thread([=](std::string cmd, OptionCollection options, UI* ui, UIProgressDialog* pDialog, float startTime, float duration)
 	{
 		FFmpegLogReader logReader = FFmpegLogReader(startTime, duration);
 		//For some reason ffmpeg prints status information to std error instead of std out
-		CmdExecute(cmd, NULL, [&](std::string data)
+		bool success = CmdExecute(cmd, NULL, [&](std::string data)
 		{
 			logReader.Read(data);
 			float p = logReader.GetProgress();
-			pDialog->SetProgress(p);
+			
+			uiDialogMutex.lock();
+			if(pDialog != nullptr)
+			{
+				pDialog->SetProgress(p);
+			}
+			uiDialogMutex.unlock();
+
 			ui->ForceRedraw();
 		}, encodingProcess);
 		isEncoding.store(false);
+		EncodingFinished(*ui, options, success);
 		delete encodingThread;
-	}, cmd, &ui, pDialog, startOption->enabled ? startOption->seconds : 0.0f, durationOption->enabled ? durationOption->seconds : 0.0f);
+	}, cmd, options, &ui, pDialog, startOption->enabled ? startOption->seconds : 0.0f, durationOption->enabled ? durationOption->seconds : 0.0f);
 	encodingThread->detach();
 }
 
@@ -189,6 +266,27 @@ std::string BuildFFmpegCmdLine(OptionCollection options)
 		}
 	}
 	return cmd;
+}
+
+void EncodingFinished(UI& ui, OptionCollection options, bool success)
+{
+	//Remove additional options and reset all others
+	OptionCollection::iterator i = options.begin();
+	while(i != options.end())
+	{
+		Option* op = *i;
+		if(IsAdditionalOption(op))
+		{
+			delete op;
+			i = options.erase(i);
+			continue;
+		}
+		op->Reset();
+		i++;
+	}
+
+	ui.ShowDialog(new UITextDialog("Encoding " + std::string(success ? "finished" : "failed!"), "Encoding process ended...", 1.0f));
+	ui.ForceRedraw();
 }
 
 BOOL WINAPI ConsoleCtrlHandler(DWORD type)

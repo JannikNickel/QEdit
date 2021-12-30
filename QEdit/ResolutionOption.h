@@ -13,7 +13,7 @@ struct ResolutionOption : Option
 
 	ResolutionOption()
 	{
-		
+		Reset();
 	}
 
 	OptionType GetType() override
@@ -70,6 +70,15 @@ struct ResolutionOption : Option
 			return false;
 		}
 		return true;
+	}
+
+	void Reset() override
+	{
+		enabled = false;
+		width = 0;
+		height = 0;
+		ui_WidthInput = "";
+		ui_HeightInput = "";
 	}
 
 private:

@@ -180,6 +180,7 @@
     <ClCompile Include="QEdit.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="UIErrorDialog.cpp" />
+    <ClCompile Include="UITextDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\ffmpeg\avcodec-59.dll" />
@@ -194,11 +195,11 @@
     <None Include="lib\ffmpeg\swscale-6.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AdditionalOption.h" />
     <ClInclude Include="AudioBitrateOption.h" />
     <ClInclude Include="AudioCopyOption.h" />
     <ClInclude Include="BitrateOption.h" />
     <ClInclude Include="CmdExecute.h" />
-    <ClInclude Include="ConsoleHelper.h" />
     <ClInclude Include="CopyOption.h" />
     <ClInclude Include="DurationOption.h" />
     <ClInclude Include="FFmpegLogReader.h" />
@@ -217,6 +218,7 @@
     <ClInclude Include="UIDialog.h" />
     <ClInclude Include="UIErrorDialog.h" />
     <ClInclude Include="UIHelper.h" />
+    <ClInclude Include="UITextDialog.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

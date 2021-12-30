@@ -1,11 +1,16 @@
 #pragma once
-#include "Option.h"
+#include "AdditionalOption.h"
 
 /// <summary>
 /// Copies all frames of the input file instead of decoding and encoding them
 /// </summary>
-struct AudioCopyOption : Option
+struct AudioCopyOption : AdditionalOption
 {
+	AudioCopyOption()
+	{
+		enabled = true;
+	}
+
 	OptionType GetType() override
 	{
 		return OptionType::Output;

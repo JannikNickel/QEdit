@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "OptionType.h"
-#include "ConsoleHelper.h"
 #include "UIHelper.h"
 
 #include "ftxui/dom/elements.hpp"
@@ -21,6 +20,7 @@ struct Option
 	virtual std::vector<ftxui::Component> GenUIComponents() = 0;
 	virtual std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) = 0;
 	virtual bool ReadUIValues(std::string& error) = 0;
+	virtual void Reset() = 0;
 };
 
 typedef std::vector<Option*> OptionCollection;

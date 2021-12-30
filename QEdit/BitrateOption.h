@@ -17,7 +17,7 @@ struct BitrateOption : Option
 
 	BitrateOption()
 	{
-
+		Reset();
 	}
 
 	OptionType GetType() override
@@ -76,6 +76,13 @@ struct BitrateOption : Option
 			return false;
 		}
 		return true;
+	}
+
+	void Reset() override
+	{
+		enabled = false;
+		bitrate = 0;
+		ui_BitrateInput = "";
 	}
 
 private:

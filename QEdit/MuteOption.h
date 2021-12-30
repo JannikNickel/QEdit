@@ -3,6 +3,11 @@
 
 struct MuteOption : Option
 {
+	MuteOption()
+	{
+		Reset();
+	}
+
 	OptionType GetType() override
 	{
 		return OptionType::Global;
@@ -37,6 +42,11 @@ struct MuteOption : Option
 	{
 		//enabled is already set
 		return true;
+	}
+
+	void Reset() override
+	{
+		enabled = false;
 	}
 };
 

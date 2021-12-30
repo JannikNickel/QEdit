@@ -3,9 +3,9 @@
 
 struct OverwriteOption : Option
 {
-	OverwriteOption(bool enabled = true)
+	OverwriteOption()
 	{
-		this->enabled = enabled;
+		Reset();
 	}
 
 	OptionType GetType() override
@@ -42,6 +42,11 @@ struct OverwriteOption : Option
 	{
 		//enabled is already set
 		return true;
+	}
+
+	void Reset() override
+	{
+		enabled = true;
 	}
 };
 

@@ -78,14 +78,17 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback)
 
 		ftxui::Element mainElement = ftxui::vbox(windows);
 
+		uiDialogMutex.lock();
 		if(currentDialog != nullptr)
 		{
 			if(currentDialog->IsClosed() == false)
 			{
 				ftxui::Element dialogContent = currentDialog->Render();
-				return ftxui::dbox({ ftxui::color(ftxui::Color::GrayDark, mainElement), dialogContent | ftxui::clear_under | ftxui::center });
+				mainElement = ftxui::dbox({ ftxui::color(ftxui::Color::GrayDark, mainElement), dialogContent | ftxui::clear_under | ftxui::center });
 			}
 		}
+		uiDialogMutex.unlock();
+
 		return mainElement;
 	});
 
@@ -94,11 +97,13 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback)
 
 void UI::ShowDialog(UIDialog* dialog)
 {
+	uiDialogMutex.lock();
 	if(currentDialog != nullptr)
 	{
 		delete currentDialog;
 	}
 	currentDialog = dialog;
+	uiDialogMutex.unlock();
 }
 
 void UI::ForceRedraw()

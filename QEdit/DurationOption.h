@@ -12,7 +12,7 @@ struct DurationOption : Option
 
 	DurationOption()
 	{
-
+		Reset();
 	}
 
 	OptionType GetType() override
@@ -65,6 +65,13 @@ struct DurationOption : Option
 			return false;
 		}
 		return true;
+	}
+
+	void Reset() override
+	{
+		enabled = false;
+		seconds = 0;
+		ui_SecondsInput = "";
 	}
 
 private:
