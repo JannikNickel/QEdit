@@ -37,7 +37,7 @@ struct CodecOption : Option
 			ftxui::vbox(
 				ftxui::hbox(
 					ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth),
-					ftxui::flex(components[1]->Render())
+					enabled ? ftxui::flex(components[1]->Render()) : ftxui::text("")
 				)
 			)
 		};

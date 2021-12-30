@@ -46,19 +46,26 @@ struct BitrateOption : Option
 
 	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
 	{
+		if(enabled)
+		{
+			return std::vector<ftxui::Element>
+			{
+				ftxui::vbox(
+					ftxui::hbox(
+						ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth),
+						ftxui::flex_shrink(ftxui::text("Bitrate (kbit/s): ")),
+						ftxui::flex(components[1]->Render()) | ftxui::bgcolor(ui_FieldBgColor)
+					),
+					ftxui::hbox(
+						ftxui::flex(ftxui::text("")) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth + 1),
+						ftxui::flex(components[2]->Render())
+					)
+				)
+			};
+		}
 		return std::vector<ftxui::Element>
 		{
-			ftxui::vbox(
-				ftxui::hbox(
-					ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth),
-					ftxui::flex_shrink(ftxui::text("Bitrate (kbit/s): ")),
-					ftxui::flex(components[1]->Render()) | ftxui::bgcolor(ui_FieldBgColor)
-				),
-				ftxui::hbox(
-					ftxui::flex(ftxui::text("")) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth + 1),
-					ftxui::flex(components[2]->Render())
-				)
-			)
+			ftxui::vbox(ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth))
 		};
 	}
 

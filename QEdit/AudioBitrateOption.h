@@ -44,8 +44,8 @@ struct AudioBitrateOption : Option
 		{
 			ftxui::hbox(
 				ftxui::flex(components[0]->Render()) | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, ui_LeftLabelWidth),
-				ftxui::flex_shrink(ftxui::text("Bitrate (kbit/s): ")),
-				ftxui::flex(components[1]->Render()) | ftxui::bgcolor(ui_FieldBgColor) | ftxui::bgcolor(ui_FieldBgColor)
+				enabled ? ftxui::flex_shrink(ftxui::text("Bitrate (kbit/s): ")) : ftxui::text(""),
+				enabled ? ftxui::flex(components[1]->Render()) | ftxui::bgcolor(ui_FieldBgColor) | ftxui::bgcolor(ui_FieldBgColor) : ftxui::text("")
 			)
 		};
 	}
