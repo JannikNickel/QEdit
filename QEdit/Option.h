@@ -5,6 +5,8 @@
 
 #include "OptionType.h"
 #include "UIHelper.h"
+#include "CFGReader.h"
+#include "CFGWriter.h"
 
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/component/component.hpp"
@@ -20,6 +22,9 @@ struct Option
 	virtual std::vector<ftxui::Component> GenUIComponents() = 0;
 	virtual std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) = 0;
 	virtual bool ReadUIValues(std::string& error) = 0;
+
+	virtual void SavePreset(CFGWriter& writer) = 0;
+	virtual void LoadPreset(CFGReader& reader) = 0;
 	virtual void Reset() = 0;
 };
 

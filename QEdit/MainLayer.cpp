@@ -19,7 +19,7 @@ std::vector<ftxui::Component> MainLayer::GenComponents()
 		}
 	}
 
-	encodeButton = ftxui::Button("[Encode]", NULL, DefaultButtonOption());
+	encodeButton = ftxui::Button("[Encode]", encodeCallback, DefaultButtonOption());
 	components.push_back(encodeButton);
 
 	return components;

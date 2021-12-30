@@ -55,6 +55,22 @@ struct CodecOption : Option
 		selectedCodec = 0;
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("videoCodecF", std::to_string(enabled));
+		writer.Write("videoCodec", std::to_string(selectedCodec));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("videoCodecF") == "1";
+		try
+		{
+			selectedCodec = std::stoi(reader.Read("videoCodec"));
+		}
+		catch(const std::exception&) { }
+	}
+
 private:
 	std::vector<std::string> ui_CodecOptions = { "H264", "H265 (HEVC)", "MPEG4" };
 	std::vector<std::string> codecCmdName = { "h264_mf", "h265_nvenc", "mpeg4" };

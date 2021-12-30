@@ -13,6 +13,8 @@
 #include "UITextDialog.h"
 #include "FFmpegLogReader.h"
 #include "CmdExecute.h"
+#include "CFGWriter.h"
+#include "Settings.h"
 
 //Status fields
 std::atomic<bool> isEncoding = false;
@@ -20,7 +22,6 @@ std::thread* encodingThread = nullptr;
 HANDLE encodingProcess = nullptr;
 
 //Function declarations
-std::string GetWorkingDirectory();
 bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>& errors);
 bool ValidateInOutPaths(std::string& in, std::string& out, std::string& error);
 bool ValidateOverwriteSettings(std::string& out, OverwriteOption* option);
@@ -30,6 +31,9 @@ void AdjustInOutPaths(std::string& inputPath, std::string& outputPath);
 std::string BuildFFmpegCmdLine(OptionCollection options);
 void EncodingFinished(UI& ui, OptionCollection options, bool success);
 BOOL WINAPI ConsoleCtrlHandler(DWORD type);
+
+void TrySavePreset(UI& ui, OptionCollection options, std::string name);
+void TryLoadPreset(UI& ui, OptionCollection options, std::string path);
 
 int main()
 {
@@ -89,7 +93,13 @@ int main()
 			//Start encoding process
 			StartEncoding(ui, options);
 		}
-	}, NULL, NULL);
+	}, [&](std::string presetPath)
+	{
+		TryLoadPreset(ui, options, presetPath);
+	}, [&](std::string presetName)
+	{
+		TrySavePreset(ui, options, presetName);
+	});
 
 	//Cleanup
 	for(Option* op : options)
@@ -97,14 +107,6 @@ int main()
 		delete(op);
 	}
 	options.clear();
-}
-
-std::string GetWorkingDirectory()
-{
-	char buffer[MAX_PATH];
-	GetModuleFileNameA(NULL, buffer, MAX_PATH);
-	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-	return std::string(buffer).substr(0, pos);
 }
 
 bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>& errors)
@@ -313,4 +315,61 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD type)
 			break;
 	}
 	return FALSE;
+}
+
+void TrySavePreset(UI& ui, OptionCollection options, std::string name)
+{
+	std::filesystem::path p = GetWorkingDirectory() + presetPath + name + ".cfg";
+
+	try
+	{
+		std::filesystem::path dirPath = p;
+		dirPath.remove_filename();
+		if(!std::filesystem::exists(dirPath))
+		{
+			std::filesystem::create_directory(dirPath);
+		}
+	}
+	catch(const std::exception&) { }
+	
+	std::ofstream file = std::ofstream(p);
+	if(file.fail() || name.empty())
+	{
+		file.close();
+		ui.ShowDialog(new UIErrorDialog({ "Invalid preset name!" }));
+		return;
+	}
+
+	CFGWriter writer = CFGWriter(&file);
+	std::string error;
+	for(Option* op : options)
+	{
+		op->ReadUIValues(error);
+		op->SavePreset(writer);
+	}
+
+	ui.ShowDialog(new UITextDialog(std::string("Saved preset!"), std::string(""), 1.0f));
+}
+
+void TryLoadPreset(UI& ui, OptionCollection options, std::string path)
+{
+	ui.ShowMainLayer();
+
+	std::ifstream file = std::ifstream(path);
+	if(file.fail())
+	{
+		file.close();
+		ui.ShowDialog(new UIErrorDialog({ "Invalid preset file!" }));
+		return;
+	}
+
+	CFGReader reader = CFGReader(&file);
+	std::string error;
+	for(Option* op : options)
+	{
+		op->Reset();
+		op->LoadPreset(reader);
+	}
+
+	ui.ShowDialog(new UITextDialog(std::string("Loaded preset!"), std::string(""), 1.0f));
 }

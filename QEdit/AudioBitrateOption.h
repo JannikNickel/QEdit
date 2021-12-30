@@ -76,6 +76,18 @@ struct AudioBitrateOption : Option
 		ui_BitrateInput = "";
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("audioBitrateF", std::to_string(enabled));
+		writer.Write("audioBitrate", std::to_string(bitrate));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("audioBitrateF") == "1";
+		ui_BitrateInput = reader.Read("audioBitrate");
+	}
+
 private:
 	std::string ui_BitrateInput;
 };

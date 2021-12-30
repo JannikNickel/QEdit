@@ -48,5 +48,15 @@ struct OverwriteOption : Option
 	{
 		enabled = true;
 	}
+
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("overwriteF", std::to_string(enabled));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("overwriteF") == "1";
+	}
 };
 

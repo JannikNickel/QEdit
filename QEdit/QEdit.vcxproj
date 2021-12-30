@@ -175,6 +175,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CFGReader.cpp" />
+    <ClCompile Include="CFGWriter.cpp" />
     <ClCompile Include="FFmpegLogReader.cpp" />
     <ClCompile Include="LoadPresetLayer.cpp" />
     <ClCompile Include="MainLayer.cpp" />
@@ -202,6 +204,8 @@
     <ClInclude Include="AudioBitrateOption.h" />
     <ClInclude Include="AudioCopyOption.h" />
     <ClInclude Include="BitrateOption.h" />
+    <ClInclude Include="CFGReader.h" />
+    <ClInclude Include="CFGWriter.h" />
     <ClInclude Include="CmdExecute.h" />
     <ClInclude Include="CopyOption.h" />
     <ClInclude Include="DurationOption.h" />
@@ -217,6 +221,7 @@
     <ClInclude Include="OutputFileOption.h" />
     <ClInclude Include="OverwriteOption.h" />
     <ClInclude Include="SavePresetLayer.h" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="UILayer.h" />
     <ClInclude Include="UIProgressDialog.h" />
     <ClInclude Include="ResolutionOption.h" />

@@ -81,6 +81,20 @@ struct ResolutionOption : Option
 		ui_HeightInput = "";
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("videoResolutionF", std::to_string(enabled));
+		writer.Write("videoResolutionW", std::to_string(width));
+		writer.Write("videoResolutionH", std::to_string(height));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("videoResolutionF") == "1";
+		ui_WidthInput = reader.Read("videoResolutionW");
+		ui_HeightInput = reader.Read("videoResolutionH");
+	}
+
 private:
 	std::string ui_WidthInput;
 	std::string ui_HeightInput;

@@ -8,6 +8,8 @@ struct AdditionalOption : Option
 	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override { return std::vector<ftxui::Element>(); }
 	bool ReadUIValues(std::string& error) override { return true; }
 	void Reset() override { enabled = true; }
+	void SavePreset(CFGWriter& writer) override { }
+	void LoadPreset(CFGReader& reader) override { }
 };
 
 static bool IsAdditionalOption(Option* op)

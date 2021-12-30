@@ -22,8 +22,9 @@ private:
 	std::array<UILayer*, 3> layers;
 
 public:
-	void Run(std::vector<Option*> options, std::function<void()> encodeCallback, std::function<void()> loadPresetCallback, std::function<void()> savePresetCallback);
+	void Run(std::vector<Option*> options, std::function<void()> encodeCallback, std::function<void(std::string)> loadPresetCallback, std::function<void(std::string)> savePresetCallback);
 	void ShowDialog(UIDialog* dialog);
 	void ForceRedraw();
+	void ShowMainLayer();
 };
 

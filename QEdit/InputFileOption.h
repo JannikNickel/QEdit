@@ -60,6 +60,16 @@ struct InputFileOption : Option
 		ui_UrlInput = "";
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+
+	}
+
 private:
 	std::string ui_UrlInput = "";
 };

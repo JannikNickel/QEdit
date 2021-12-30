@@ -74,6 +74,18 @@ struct FramerateOption : Option
 		ui_FramerateInput = "";
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("videoFpsF", std::to_string(enabled));
+		writer.Write("videoFps", std::to_string(fps));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("videoFpsF") == "1";
+		ui_FramerateInput = reader.Read("videoFps");
+	}
+
 private:
 	std::string ui_FramerateInput;
 };

@@ -99,6 +99,24 @@ struct BitrateOption : Option
 		ui_BitrateInput = "";
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("videoBitrateF", std::to_string(enabled));
+		writer.Write("videoBitrate", std::to_string(bitrate));
+		writer.Write("videoBitrateM", std::to_string(mode));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("videoBitrateF") == "1";
+		ui_BitrateInput = reader.Read("videoBitrate");
+		try
+		{
+			mode = std::stoi(reader.Read("videoBitrateM"));
+		}
+		catch(const std::exception&) { }
+	}
+
 private:
 	std::string ui_BitrateInput;
 	const std::vector<std::string> ui_ModeOptions = { "CBR", "VBR" };

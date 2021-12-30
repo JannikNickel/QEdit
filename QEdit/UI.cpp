@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <map>
+#include <chrono>
 
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/screen/screen.hpp"
@@ -14,9 +15,9 @@
 #include "ftxui/component/component_options.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 
-void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback, std::function<void()> loadPresetCallback, std::function<void()> savePresetCallback)
+void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback, std::function<void(std::string)> loadPresetCallback, std::function<void(std::string)> savePresetCallback)
 {
-	layers = { new MainLayer(options), new LoadPresetLayer(), new SavePresetLayer() };
+	layers = { new MainLayer(options, encodeCallback), new LoadPresetLayer(loadPresetCallback), new SavePresetLayer(savePresetCallback) };
 
 	ftxui::Components components;
 	for(UILayer* layer : layers)
@@ -29,7 +30,13 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback,
 	this->screen = &screen;
 
 	std::vector<std::string> menuItems = { "QEdit", "Load Preset", "Save Preset" };
-	ftxui::Component tab = ftxui::Toggle(&menuItems, &selectedLayer);
+
+	ftxui::ToggleOption tabOption;
+	tabOption.on_change = [&]
+	{
+		((LoadPresetLayer*)layers[1])->FindPresets();
+	};
+	ftxui::Component tab = ftxui::Toggle(&menuItems, &selectedLayer, tabOption);
 	components.push_back(tab);
 
 	ftxui::Component container = ftxui::Container::Vertical(components);
@@ -73,4 +80,10 @@ void UI::ShowDialog(UIDialog* dialog)
 void UI::ForceRedraw()
 {
 	screen->PostEvent(ftxui::Event::Custom);
+}
+
+void UI::ShowMainLayer()
+{
+	selectedLayer = 0;
+	ForceRedraw();
 }

@@ -48,5 +48,15 @@ struct MuteOption : Option
 	{
 		enabled = false;
 	}
+
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("muteF", std::to_string(enabled));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("muteF") == "1";
+	}
 };
 

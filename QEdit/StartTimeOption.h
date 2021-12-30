@@ -74,6 +74,18 @@ struct StartTimeOption : Option
 		ui_SecondsInput = "";
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("startTimeF", std::to_string(enabled));
+		writer.Write("startTime", std::to_string(seconds));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("startTimeF") == "1";
+		ui_SecondsInput = reader.Read("startTime");
+	}
+
 private:
 	std::string ui_SecondsInput;
 };

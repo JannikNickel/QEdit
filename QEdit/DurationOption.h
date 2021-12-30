@@ -74,6 +74,18 @@ struct DurationOption : Option
 		ui_SecondsInput = "";
 	}
 
+	void SavePreset(CFGWriter& writer) override
+	{
+		writer.Write("durationF", std::to_string(enabled));
+		writer.Write("duration", std::to_string(seconds));
+	}
+
+	void LoadPreset(CFGReader& reader) override
+	{
+		enabled = reader.Read("durationF") == "1";
+		ui_SecondsInput = reader.Read("duration");
+	}
+
 private:
 	std::string ui_SecondsInput;
 };
