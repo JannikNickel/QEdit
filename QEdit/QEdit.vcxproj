@@ -219,6 +219,7 @@
     <ClInclude Include="UIErrorDialog.h" />
     <ClInclude Include="UIHelper.h" />
     <ClInclude Include="UITextDialog.h" />
+    <ClInclude Include="CodecOption.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -14,3 +14,4 @@
 #include "OverwriteOption.h"
 #include "ResolutionOption.h"
 #include "StartTimeOption.h"
+#include "CodecOption.h"

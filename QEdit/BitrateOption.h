@@ -27,6 +27,10 @@ struct BitrateOption : Option
 
 	std::string ToString() override
 	{
+		if(mode == 1)
+		{
+			return "-b:v " + std::to_string(bitrate) + "k -minrate " + std::to_string(bitrate) + "k -maxrate " + std::to_string(bitrate) + "k";
+		}
 		return "-b:v " + std::to_string(bitrate) + "k";
 	}
 
@@ -65,6 +69,8 @@ struct BitrateOption : Option
 		{
 			return true;
 		}
+
+		//mode is already set
 		try
 		{
 			bitrate = (unsigned int)(std::stoi(ui_BitrateInput));
@@ -82,6 +88,7 @@ struct BitrateOption : Option
 	{
 		enabled = false;
 		bitrate = 0;
+		mode = 0;
 		ui_BitrateInput = "";
 	}
 

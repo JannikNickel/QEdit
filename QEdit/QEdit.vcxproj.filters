@@ -119,5 +119,8 @@
     <ClInclude Include="AdditionalOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CodecOption.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

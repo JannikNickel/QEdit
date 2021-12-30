@@ -44,11 +44,11 @@ int main()
 	options.push_back(new ResolutionOption());
 	options.push_back(new FramerateOption());
 	options.push_back(new BitrateOption());
+	options.push_back(new CodecOption());
 	options.push_back(new MuteOption());
 	options.push_back(new AudioBitrateOption());
 	options.push_back(new OutputFileOption());
 	options.push_back(new OverwriteOption());
-	//TODO option for codec (auto, h265, mpeg4, ...)
 	
 
 	//Run UI and define lambda for encode button callback
@@ -157,7 +157,8 @@ void AddAdditionalOptions(OptionCollection& options)
 	BitrateOption* vBitrateOption = FindOption<BitrateOption>(options);
 	FramerateOption* vFramerateOption = FindOption<FramerateOption>(options);
 	ResolutionOption* vResolutionOption = FindOption<ResolutionOption>(options);
-	if(!vBitrateOption->enabled && !vBitrateOption->enabled && !vBitrateOption->enabled)
+	CodecOption* vCodecOption = FindOption<CodecOption>(options);
+	if(!vBitrateOption->enabled && !vBitrateOption->enabled && !vBitrateOption->enabled && !vCodecOption->enabled)
 	{
 		options.push_back(new CopyOption());
 	}
