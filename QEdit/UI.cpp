@@ -14,69 +14,33 @@
 #include "ftxui/component/component_options.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 
-void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback)
+void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback, std::function<void()> loadPresetCallback, std::function<void()> savePresetCallback)
 {
+	layers = { new MainLayer(options), new LoadPresetLayer(), new SavePresetLayer() };
+
 	ftxui::Components components;
-	std::map<Option*, std::vector<ftxui::Component>> optionComponents;
-
-	for(std::string category : uiCategoryOrder)
+	for(UILayer* layer : layers)
 	{
-		for(Option* op : options)
-		{
-			if(op != nullptr && op->UICategory() == category)
-			{
-				std::vector<ftxui::Component> comps = op->GenUIComponents();
-				std::vector<ftxui::Element> dom = op->GetUIDom(comps);
-
-				components.insert(components.end(), comps.begin(), comps.end());
-				optionComponents.insert(std::pair<Option*, std::vector<ftxui::Component>>(op, comps));
-			}
-		}
+		std::vector<ftxui::Component> comps = layer->GenComponents();
+		components.insert(components.end(), comps.begin(), comps.end());
 	}
 
 	ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
 	this->screen = &screen;
 
-	ftxui::Component encodeButton = ftxui::Button("[Encode]", encodeCallback, DefaultButtonOption());
-	components.push_back(encodeButton);
-	ftxui::Component loadPresetButton = ftxui::Button("[Load Preset]", [&]{}, DefaultButtonOption());
-	components.push_back(loadPresetButton);
-	ftxui::Component savePresetButton = ftxui::Button("[Save Preset]", [&]{}, DefaultButtonOption());
-	components.push_back(savePresetButton);
+	std::vector<std::string> menuItems = { "QEdit", "Load Preset", "Save Preset" };
+	ftxui::Component tab = ftxui::Toggle(&menuItems, &selectedLayer);
+	components.push_back(tab);
 
 	ftxui::Component container = ftxui::Container::Vertical(components);
 	ftxui::Component renderer = ftxui::Renderer(container, [&]
 	{
-		std::vector<ftxui::Element> windows;
+		std::vector<ftxui::Element> elements;
+		elements.push_back(tab->Render());
+		elements.push_back(ftxui::separator());
+		elements.push_back(layers[selectedLayer]->Render());
 
-		//Header
-		ftxui::Element titlebar = ftxui::hbox(ftxui::color(ftxui::Color::Aquamarine1, ftxui::text("QEdit")), ftxui::text("  "), loadPresetButton->Render(), ftxui::text("  "), savePresetButton->Render());
-		windows.push_back(titlebar);
-		windows.push_back(ftxui::separator());
-
-		for(std::string category : uiCategoryOrder)
-		{
-			std::vector<ftxui::Element> windowContent;
-			for(Option* op : options)
-			{
-				if(op != nullptr && op->UICategory() == category)
-				{
-					std::vector<ftxui::Element> elements = op->GetUIDom(optionComponents[op]);
-					windowContent.insert(windowContent.end(), elements.begin(), elements.end());
-				}
-			}
-			if(windowContent.empty() == true)
-			{
-				continue;
-			}
-
-			ftxui::Element window = ftxui::window(ftxui::text(category), ftxui::vbox(windowContent));
-			windows.push_back(window);
-		}
-
-		windows.push_back(ftxui::hbox(ftxui::flex_shrink(encodeButton->Render())));
-
-		ftxui::Element mainElement = ftxui::vbox(windows);
+		ftxui::Element mainElement = vbox(elements);
 
 		uiDialogMutex.lock();
 		if(currentDialog != nullptr)

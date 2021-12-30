@@ -176,6 +176,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FFmpegLogReader.cpp" />
+    <ClCompile Include="LoadPresetLayer.cpp" />
+    <ClCompile Include="MainLayer.cpp" />
+    <ClCompile Include="SavePresetLayer.cpp" />
     <ClCompile Include="UIProgressDialog.cpp" />
     <ClCompile Include="QEdit.cpp" />
     <ClCompile Include="UI.cpp" />
@@ -205,12 +208,16 @@
     <ClInclude Include="FFmpegLogReader.h" />
     <ClInclude Include="FramerateOption.h" />
     <ClInclude Include="InputFileOption.h" />
+    <ClInclude Include="LoadPresetLayer.h" />
+    <ClInclude Include="MainLayer.h" />
     <ClInclude Include="MuteOption.h" />
     <ClInclude Include="Option.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="OptionType.h" />
     <ClInclude Include="OutputFileOption.h" />
     <ClInclude Include="OverwriteOption.h" />
+    <ClInclude Include="SavePresetLayer.h" />
+    <ClInclude Include="UILayer.h" />
     <ClInclude Include="UIProgressDialog.h" />
     <ClInclude Include="ResolutionOption.h" />
     <ClInclude Include="StartTimeOption.h" />

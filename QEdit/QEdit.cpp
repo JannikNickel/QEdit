@@ -89,7 +89,7 @@ int main()
 			//Start encoding process
 			StartEncoding(ui, options);
 		}
-	});
+	}, NULL, NULL);
 
 	//Cleanup
 	for(Option* op : options)
