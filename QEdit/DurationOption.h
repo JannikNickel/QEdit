@@ -15,17 +15,17 @@ struct DurationOption : Option
 		Reset();
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::Output;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		return std::string("-t ") + std::to_string(seconds);
 	}
 
-	std::string UICategory() override
+	std::string UICategory() const override
 	{
 		return globalUICategory;
 	}
@@ -35,7 +35,7 @@ struct DurationOption : Option
 		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Duration", &enabled), ftxui::Input(&ui_SecondsInput, "") };
 	}
 
-	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const override
 	{
 		return std::vector<ftxui::Element>
 		{
@@ -74,7 +74,7 @@ struct DurationOption : Option
 		ui_SecondsInput = "";
 	}
 
-	void SavePreset(CFGWriter& writer) override
+	void SavePreset(CFGWriter& writer) const override
 	{
 		writer.Write("durationF", std::to_string(enabled));
 		writer.Write("duration", std::to_string(seconds));

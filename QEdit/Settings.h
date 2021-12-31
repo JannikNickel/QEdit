@@ -2,7 +2,8 @@
 #include <string>
 #include <Windows.h>
 
-static std::string presetPath = "/presets/";
+static const std::string presetPath = "/presets/";
+static const std::string ffmpegPath = "\\lib\\ffmpeg.exe";
 
 static std::string GetWorkingDirectory()
 {

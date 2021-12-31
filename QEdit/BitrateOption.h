@@ -20,12 +20,12 @@ struct BitrateOption : Option
 		Reset();
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::Output;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		if(mode == 1)
 		{
@@ -34,7 +34,7 @@ struct BitrateOption : Option
 		return "-b:v " + std::to_string(bitrate) + "k";
 	}
 
-	std::string UICategory() override
+	std::string UICategory() const override
 	{
 		return videoUICategory;
 	}
@@ -44,7 +44,7 @@ struct BitrateOption : Option
 		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Bitrate", &enabled), ftxui::Input(&ui_BitrateInput, ""), ftxui::Radiobox(&ui_ModeOptions, &mode) };
 	}
 
-	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const override
 	{
 		if(enabled)
 		{
@@ -99,7 +99,7 @@ struct BitrateOption : Option
 		ui_BitrateInput = "";
 	}
 
-	void SavePreset(CFGWriter& writer) override
+	void SavePreset(CFGWriter& writer) const override
 	{
 		writer.Write("videoBitrateF", std::to_string(enabled));
 		writer.Write("videoBitrate", std::to_string(bitrate));

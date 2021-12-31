@@ -11,12 +11,12 @@ struct CopyOption : AdditionalOption
 		enabled = true;
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::Output;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		return "-c:v copy";
 	}

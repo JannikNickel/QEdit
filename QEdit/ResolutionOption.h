@@ -16,17 +16,17 @@ struct ResolutionOption : Option
 		Reset();
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::Output;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		return "-s " + std::to_string(width) + "x" + std::to_string(height);
 	}
 
-	std::string UICategory() override
+	std::string UICategory() const override
 	{
 		return videoUICategory;
 	}
@@ -36,7 +36,7 @@ struct ResolutionOption : Option
 		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Resolution", &enabled), ftxui::Input(&ui_WidthInput, ""), ftxui::Input(&ui_HeightInput, "") };
 	}
 
-	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const override
 	{
 		return std::vector<ftxui::Element>
 		{
@@ -81,7 +81,7 @@ struct ResolutionOption : Option
 		ui_HeightInput = "";
 	}
 
-	void SavePreset(CFGWriter& writer) override
+	void SavePreset(CFGWriter& writer) const override
 	{
 		writer.Write("videoResolutionF", std::to_string(enabled));
 		writer.Write("videoResolutionW", std::to_string(width));

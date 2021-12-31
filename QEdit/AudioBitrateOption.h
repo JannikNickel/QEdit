@@ -18,17 +18,17 @@ struct AudioBitrateOption : Option
 		Reset();
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::Output;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		return "-b:a " + std::to_string(bitrate) + "k";
 	}
 
-	std::string UICategory() override
+	std::string UICategory() const override
 	{
 		return audioUICategory;
 	}
@@ -38,7 +38,7 @@ struct AudioBitrateOption : Option
 		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Audio Bitrate", &enabled), ftxui::Input(&ui_BitrateInput, "") };
 	}
 
-	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const override
 	{
 		return std::vector<ftxui::Element>
 		{
@@ -76,7 +76,7 @@ struct AudioBitrateOption : Option
 		ui_BitrateInput = "";
 	}
 
-	void SavePreset(CFGWriter& writer) override
+	void SavePreset(CFGWriter& writer) const override
 	{
 		writer.Write("audioBitrateF", std::to_string(enabled));
 		writer.Write("audioBitrate", std::to_string(bitrate));

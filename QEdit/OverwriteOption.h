@@ -8,17 +8,17 @@ struct OverwriteOption : Option
 		Reset();
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::Global;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		return std::string("-") + (enabled == true ? "y" : "n");
 	}
 
-	std::string UICategory() override
+	std::string UICategory() const override
 	{
 		return outputUICategory;
 	}
@@ -28,7 +28,7 @@ struct OverwriteOption : Option
 		return std::vector<ftxui::Component> { ftxui::Checkbox("Overwrite Output", &enabled) };
 	}
 
-	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const override
 	{
 		return std::vector<ftxui::Element>
 		{
@@ -49,7 +49,7 @@ struct OverwriteOption : Option
 		enabled = true;
 	}
 
-	void SavePreset(CFGWriter& writer) override
+	void SavePreset(CFGWriter& writer) const override
 	{
 		writer.Write("overwriteF", std::to_string(enabled));
 	}

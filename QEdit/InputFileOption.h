@@ -16,17 +16,17 @@ struct InputFileOption : Option
 		Reset();
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::InputFile;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		return "-i \"" + url + "\"";
 	}
 
-	std::string UICategory() override
+	std::string UICategory() const override
 	{
 		return inputUICategory;
 	}
@@ -36,7 +36,7 @@ struct InputFileOption : Option
 		return std::vector<ftxui::Component> { ftxui::Input(&ui_UrlInput, "") };
 	}
 
-	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const override
 	{
 		return std::vector<ftxui::Element>
 		{
@@ -60,7 +60,7 @@ struct InputFileOption : Option
 		ui_UrlInput = "";
 	}
 
-	void SavePreset(CFGWriter& writer) override
+	void SavePreset(CFGWriter& writer) const override
 	{
 
 	}

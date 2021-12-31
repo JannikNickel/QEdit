@@ -22,18 +22,18 @@ std::thread* encodingThread = nullptr;
 HANDLE encodingProcess = nullptr;
 
 //Function declarations
-bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>& errors);
+bool ValidateEncodingSettings(OptionCollection& options, std::vector<std::string>& errors);
 bool ValidateInOutPaths(std::string& in, std::string& out, std::string& error);
-bool ValidateOverwriteSettings(std::string& out, OverwriteOption* option);
+bool ValidateOverwriteSettings(std::string& const out, OverwriteOption& const option);
 void AddAdditionalOptions(OptionCollection& options);
-void StartEncoding(UI& ui, OptionCollection options);
+void StartEncoding(UI& ui, OptionCollection& options);
 void AdjustInOutPaths(std::string& inputPath, std::string& outputPath);
-std::string BuildFFmpegCmdLine(OptionCollection options);
-void EncodingFinished(UI& ui, OptionCollection options, bool success);
+std::string BuildFFmpegCmdLine(OptionCollection& const options);
+void EncodingFinished(UI& ui, OptionCollection& options, bool success);
 BOOL WINAPI ConsoleCtrlHandler(DWORD type);
 
-void TrySavePreset(UI& ui, OptionCollection options, std::string name);
-void TryLoadPreset(UI& ui, OptionCollection options, std::string path);
+void TrySavePreset(UI& ui, OptionCollection& options, std::string& const name);
+void TryLoadPreset(UI& ui, OptionCollection& options, std::string& const path);
 
 int main()
 {
@@ -84,7 +84,7 @@ int main()
 			}
 
 			//Make sure output file doesnt exist or overwrite flag is set
-			if(!ValidateOverwriteSettings(outOption->url, FindOption<OverwriteOption>(options)))
+			if(!ValidateOverwriteSettings(outOption->url, *FindOption<OverwriteOption>(options)))
 			{
 				ui.ShowDialog(new UIErrorDialog(std::vector<std::string> { "Output file already exists! Please set overwrite flag or change output file name..." }));
 				return;
@@ -104,12 +104,15 @@ int main()
 	//Cleanup
 	for(Option* op : options)
 	{
-		delete(op);
+		if(op != nullptr)
+		{
+			delete op;
+		}
 	}
 	options.clear();
 }
 
-bool ValidateEncodingSettings(OptionCollection options, std::vector<std::string>& errors)
+bool ValidateEncodingSettings(OptionCollection& options, std::vector<std::string>& errors)
 {
 	errors.clear();
 	//Read UI values and validate them
@@ -143,10 +146,10 @@ bool ValidateInOutPaths(std::string& in, std::string& out, std::string& error)
 	return true;
 }
 
-bool ValidateOverwriteSettings(std::string& out, OverwriteOption* option)
+bool ValidateOverwriteSettings(std::string& const out, OverwriteOption& const option)
 {
 	std::filesystem::path outPath = std::filesystem::path(out);
-	if(std::filesystem::exists(outPath) && !option->enabled)
+	if(std::filesystem::exists(outPath) && !option.enabled)
 	{
 		return false;
 	}
@@ -173,7 +176,7 @@ void AddAdditionalOptions(OptionCollection& options)
 	}
 }
 
-void StartEncoding(UI& ui, OptionCollection options)
+void StartEncoding(UI& ui, OptionCollection& options)
 {
 	//Set flag to prevent UI from start another encoding
 	isEncoding.store(true);
@@ -250,9 +253,9 @@ void AdjustInOutPaths(std::string& inputPath, std::string& outputPath)
 	}
 }
 
-std::string BuildFFmpegCmdLine(OptionCollection options)
+std::string BuildFFmpegCmdLine(OptionCollection& const options)
 {
-	std::string ffmpegPath = GetWorkingDirectory() + "\\lib\\ffmpeg.exe";
+	std::string ffmpegPath = GetWorkingDirectory() + ffmpegPath;
 	std::string cmd = ffmpegPath;
 	for(OptionType type : optionOrder)
 	{
@@ -271,7 +274,7 @@ std::string BuildFFmpegCmdLine(OptionCollection options)
 	return cmd;
 }
 
-void EncodingFinished(UI& ui, OptionCollection options, bool success)
+void EncodingFinished(UI& ui, OptionCollection& options, bool success)
 {
 	//Remove additional options and reset all others
 	OptionCollection::iterator i = options.begin();
@@ -308,6 +311,7 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD type)
 						TerminateProcess(encodingProcess, EXIT_FAILURE);
 					}
 				}
+				delete encodingThread;
 			}
 			break;
 		}
@@ -317,7 +321,7 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD type)
 	return FALSE;
 }
 
-void TrySavePreset(UI& ui, OptionCollection options, std::string name)
+void TrySavePreset(UI& ui, OptionCollection& options, std::string& const name)
 {
 	std::filesystem::path p = GetWorkingDirectory() + presetPath + name + ".cfg";
 
@@ -351,7 +355,7 @@ void TrySavePreset(UI& ui, OptionCollection options, std::string name)
 	ui.ShowDialog(new UITextDialog(std::string("Saved preset!"), std::string(""), 1.0f));
 }
 
-void TryLoadPreset(UI& ui, OptionCollection options, std::string path)
+void TryLoadPreset(UI& ui, OptionCollection& options, std::string& const path)
 {
 	ui.ShowMainLayer();
 

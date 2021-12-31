@@ -15,15 +15,15 @@
 struct Option
 {
 	bool enabled = false;
-	virtual OptionType GetType() = 0;
-	virtual std::string ToString() = 0;
+	virtual OptionType GetType() const = 0;
+	virtual std::string ToString() const = 0;
 
-	virtual std::string UICategory() = 0;
+	virtual std::string UICategory() const = 0;
 	virtual std::vector<ftxui::Component> GenUIComponents() = 0;
-	virtual std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) = 0;
+	virtual std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const = 0;
 	virtual bool ReadUIValues(std::string& error) = 0;
 
-	virtual void SavePreset(CFGWriter& writer) = 0;
+	virtual void SavePreset(CFGWriter& writer) const = 0;
 	virtual void LoadPreset(CFGReader& reader) = 0;
 	virtual void Reset() = 0;
 };

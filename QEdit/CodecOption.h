@@ -10,17 +10,17 @@ struct CodecOption : Option
 		Reset();
 	}
 
-	OptionType GetType() override
+	OptionType GetType() const override
 	{
 		return OptionType::Output;
 	}
 
-	std::string ToString() override
+	std::string ToString() const override
 	{
 		return "-c:v " + codecCmdName[selectedCodec];
 	}
 
-	std::string UICategory() override
+	std::string UICategory() const override
 	{
 		return videoUICategory;
 	}
@@ -30,7 +30,7 @@ struct CodecOption : Option
 		return std::vector<ftxui::Component> { ftxui::Checkbox("Change Codec", &enabled), ftxui::Radiobox(&ui_CodecOptions, &selectedCodec) };
 	}
 
-	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component> components) override
+	std::vector<ftxui::Element> GetUIDom(std::vector<ftxui::Component>& components) const override
 	{
 		return std::vector<ftxui::Element>
 		{
@@ -52,10 +52,11 @@ struct CodecOption : Option
 
 	void Reset() override
 	{
+		enabled = false;
 		selectedCodec = 0;
 	}
 
-	void SavePreset(CFGWriter& writer) override
+	void SavePreset(CFGWriter& writer) const override
 	{
 		writer.Write("videoCodecF", std::to_string(enabled));
 		writer.Write("videoCodec", std::to_string(selectedCodec));
