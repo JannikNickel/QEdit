@@ -23,7 +23,7 @@ CFGReader::CFGReader(std::ifstream* file)
 	file->close();
 }
 
-std::string CFGReader::Read(std::string attribute) const
+std::string CFGReader::Read(std::string attribute)
 {
 	if(pairs.contains(attribute))
 	{

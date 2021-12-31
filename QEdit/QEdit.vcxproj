@@ -97,7 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include\;$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,7 +118,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include\;$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,7 +139,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include\;$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,7 +160,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\include\;$(ProjectDir)\lib\ftxui-0.11.1-win64\include\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -175,17 +175,17 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CFGReader.cpp" />
-    <ClCompile Include="CFGWriter.cpp" />
-    <ClCompile Include="FFmpegLogReader.cpp" />
-    <ClCompile Include="LoadPresetLayer.cpp" />
-    <ClCompile Include="MainLayer.cpp" />
-    <ClCompile Include="SavePresetLayer.cpp" />
-    <ClCompile Include="UIProgressDialog.cpp" />
-    <ClCompile Include="QEdit.cpp" />
-    <ClCompile Include="UI.cpp" />
-    <ClCompile Include="UIErrorDialog.cpp" />
-    <ClCompile Include="UITextDialog.cpp" />
+    <ClCompile Include="src\CFGReader.cpp" />
+    <ClCompile Include="src\CFGWriter.cpp" />
+    <ClCompile Include="src\FFmpegLogReader.cpp" />
+    <ClCompile Include="src\LoadPresetLayer.cpp" />
+    <ClCompile Include="src\MainLayer.cpp" />
+    <ClCompile Include="src\SavePresetLayer.cpp" />
+    <ClCompile Include="src\UIProgressDialog.cpp" />
+    <ClCompile Include="src\QEdit.cpp" />
+    <ClCompile Include="src\UI.cpp" />
+    <ClCompile Include="src\UIErrorDialog.cpp" />
+    <ClCompile Include="src\UITextDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\ffmpeg\avcodec-59.dll" />
@@ -200,38 +200,38 @@
     <None Include="lib\ffmpeg\swscale-6.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AdditionalOption.h" />
-    <ClInclude Include="AudioBitrateOption.h" />
-    <ClInclude Include="AudioCopyOption.h" />
-    <ClInclude Include="BitrateOption.h" />
-    <ClInclude Include="CFGReader.h" />
-    <ClInclude Include="CFGWriter.h" />
-    <ClInclude Include="CmdExecute.h" />
-    <ClInclude Include="CopyOption.h" />
-    <ClInclude Include="DurationOption.h" />
-    <ClInclude Include="FFmpegLogReader.h" />
-    <ClInclude Include="FramerateOption.h" />
-    <ClInclude Include="InputFileOption.h" />
-    <ClInclude Include="LoadPresetLayer.h" />
-    <ClInclude Include="MainLayer.h" />
-    <ClInclude Include="MuteOption.h" />
-    <ClInclude Include="Option.h" />
-    <ClInclude Include="Options.h" />
-    <ClInclude Include="OptionType.h" />
-    <ClInclude Include="OutputFileOption.h" />
-    <ClInclude Include="OverwriteOption.h" />
-    <ClInclude Include="SavePresetLayer.h" />
-    <ClInclude Include="Settings.h" />
-    <ClInclude Include="UILayer.h" />
-    <ClInclude Include="UIProgressDialog.h" />
-    <ClInclude Include="ResolutionOption.h" />
-    <ClInclude Include="StartTimeOption.h" />
-    <ClInclude Include="UI.h" />
-    <ClInclude Include="UIDialog.h" />
-    <ClInclude Include="UIErrorDialog.h" />
-    <ClInclude Include="UIHelper.h" />
-    <ClInclude Include="UITextDialog.h" />
-    <ClInclude Include="CodecOption.h" />
+    <ClInclude Include="include\AdditionalOption.h" />
+    <ClInclude Include="include\AudioBitrateOption.h" />
+    <ClInclude Include="include\AudioCopyOption.h" />
+    <ClInclude Include="include\BitrateOption.h" />
+    <ClInclude Include="include\CFGReader.h" />
+    <ClInclude Include="include\CFGWriter.h" />
+    <ClInclude Include="include\CmdExecute.h" />
+    <ClInclude Include="include\CopyOption.h" />
+    <ClInclude Include="include\DurationOption.h" />
+    <ClInclude Include="include\FFmpegLogReader.h" />
+    <ClInclude Include="include\FramerateOption.h" />
+    <ClInclude Include="include\InputFileOption.h" />
+    <ClInclude Include="include\LoadPresetLayer.h" />
+    <ClInclude Include="include\MainLayer.h" />
+    <ClInclude Include="include\MuteOption.h" />
+    <ClInclude Include="include\Option.h" />
+    <ClInclude Include="include\Options.h" />
+    <ClInclude Include="include\OptionType.h" />
+    <ClInclude Include="include\OutputFileOption.h" />
+    <ClInclude Include="include\OverwriteOption.h" />
+    <ClInclude Include="include\SavePresetLayer.h" />
+    <ClInclude Include="include\Settings.h" />
+    <ClInclude Include="include\UILayer.h" />
+    <ClInclude Include="include\UIProgressDialog.h" />
+    <ClInclude Include="include\ResolutionOption.h" />
+    <ClInclude Include="include\StartTimeOption.h" />
+    <ClInclude Include="include\UI.h" />
+    <ClInclude Include="include\UIDialog.h" />
+    <ClInclude Include="include\UIErrorDialog.h" />
+    <ClInclude Include="include\UIHelper.h" />
+    <ClInclude Include="include\UITextDialog.h" />
+    <ClInclude Include="include\CodecOption.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

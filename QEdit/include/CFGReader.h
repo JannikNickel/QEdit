@@ -11,6 +11,6 @@ private:
 
 public:
 	CFGReader(std::ifstream* file);
-	std::string Read(std::string attribute) const;
+	std::string Read(std::string attribute);
 };
 

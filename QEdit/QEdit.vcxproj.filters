@@ -15,37 +15,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="QEdit.cpp">
+    <ClCompile Include="src\QEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UI.cpp">
+    <ClCompile Include="src\UI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIErrorDialog.cpp">
+    <ClCompile Include="src\UIErrorDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIProgressDialog.cpp">
+    <ClCompile Include="src\UIProgressDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FFmpegLogReader.cpp">
+    <ClCompile Include="src\FFmpegLogReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UITextDialog.cpp">
+    <ClCompile Include="src\UITextDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SavePresetLayer.cpp">
+    <ClCompile Include="src\SavePresetLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MainLayer.cpp">
+    <ClCompile Include="src\MainLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoadPresetLayer.cpp">
+    <ClCompile Include="src\LoadPresetLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CFGReader.cpp">
+    <ClCompile Include="src\CFGReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CFGWriter.cpp">
+    <ClCompile Include="src\CFGWriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,100 +62,100 @@
     <None Include="lib\ffmpeg\swscale-6.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Option.h">
+    <ClInclude Include="include\Option.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OptionType.h">
+    <ClInclude Include="include\OptionType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OverwriteOption.h">
+    <ClInclude Include="include\OverwriteOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputFileOption.h">
+    <ClInclude Include="include\InputFileOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OutputFileOption.h">
+    <ClInclude Include="include\OutputFileOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FramerateOption.h">
+    <ClInclude Include="include\FramerateOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StartTimeOption.h">
+    <ClInclude Include="include\StartTimeOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DurationOption.h">
+    <ClInclude Include="include\DurationOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BitrateOption.h">
+    <ClInclude Include="include\BitrateOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioBitrateOption.h">
+    <ClInclude Include="include\AudioBitrateOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MuteOption.h">
+    <ClInclude Include="include\MuteOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResolutionOption.h">
+    <ClInclude Include="include\ResolutionOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CopyOption.h">
+    <ClInclude Include="include\CopyOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioCopyOption.h">
+    <ClInclude Include="include\AudioCopyOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Options.h">
+    <ClInclude Include="include\Options.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UI.h">
+    <ClInclude Include="include\UI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIHelper.h">
+    <ClInclude Include="include\UIHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIErrorDialog.h">
+    <ClInclude Include="include\UIErrorDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIDialog.h">
+    <ClInclude Include="include\UIDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIProgressDialog.h">
+    <ClInclude Include="include\UIProgressDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CmdExecute.h">
+    <ClInclude Include="include\CmdExecute.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FFmpegLogReader.h">
+    <ClInclude Include="include\FFmpegLogReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UITextDialog.h">
+    <ClInclude Include="include\UITextDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AdditionalOption.h">
+    <ClInclude Include="include\AdditionalOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CodecOption.h">
+    <ClInclude Include="include\CodecOption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UILayer.h">
+    <ClInclude Include="include\UILayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SavePresetLayer.h">
+    <ClInclude Include="include\SavePresetLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MainLayer.h">
+    <ClInclude Include="include\MainLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LoadPresetLayer.h">
+    <ClInclude Include="include\LoadPresetLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CFGReader.h">
+    <ClInclude Include="include\CFGReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CFGWriter.h">
+    <ClInclude Include="include\CFGWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Settings.h">
+    <ClInclude Include="include\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
