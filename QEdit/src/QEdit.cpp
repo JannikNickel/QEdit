@@ -303,6 +303,7 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD type)
 			DWORD exitCode = 0;
 			if(encodingThread != nullptr)
 			{
+				delete encodingThread;
 				if(encodingProcess && GetExitCodeProcess(encodingProcess, &exitCode))
 				{
 					if(exitCode == STILL_ACTIVE)
@@ -310,7 +311,6 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD type)
 						TerminateProcess(encodingProcess, EXIT_FAILURE);
 					}
 				}
-				delete encodingThread;
 			}
 			break;
 		}

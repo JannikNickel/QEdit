@@ -145,7 +145,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)\lib\ftxui-0.11.1-win64\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ftxui-component.lib;ftxui-dom.lib;ftxui-screen.lib</AdditionalDependencies>
+      <AdditionalDependencies>ftxui-component_dbg.lib;ftxui-dom_dbg.lib;ftxui-screen_dbg.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>XCOPY /Y "$(ProjectDir)\lib\ffmpeg\" "$(TargetDir)\lib\" /S</Command>

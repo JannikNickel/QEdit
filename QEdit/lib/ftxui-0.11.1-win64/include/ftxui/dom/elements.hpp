@@ -4,11 +4,14 @@
 #include <functional>
 #include <memory>
 
+#include "ftxui/dom/canvas.hpp"
+#include "ftxui/dom/flexbox_config.hpp"
 #include "ftxui/dom/node.hpp"
 #include "ftxui/screen/box.hpp"
 #include "ftxui/screen/color.hpp"
 #include "ftxui/screen/screen.hpp"
 #include "ftxui/screen/terminal.hpp"
+#include "ftxui/util/ref.hpp"
 
 namespace ftxui {
 class Node;
@@ -49,9 +52,16 @@ Decorator borderStyled(BorderStyle);
 Decorator borderWith(Pixel);
 Element window(Element title, Element content);
 Element spinner(int charset_index, size_t image_index);
-Elements paragraph(std::string text);  // Use inside hflow(). Split by space.
+Element paragraph(std::string text);
+Element paragraphAlignLeft(std::string text);
+Element paragraphAlignRight(std::string text);
+Element paragraphAlignCenter(std::string text);
+Element paragraphAlignJustify(std::string text);
 Element graph(GraphFunction);
 Element emptyElement();
+Element canvas(ConstRef<Canvas>);
+Element canvas(int width, int height, std::function<void(Canvas&)>);
+Element canvas(std::function<void(Canvas&)>);
 
 // -- Decorator ---
 Element bold(Element);
@@ -63,14 +73,19 @@ Decorator color(Color);
 Decorator bgcolor(Color);
 Element color(Color, Element);
 Element bgcolor(Color, Element);
+Decorator focusPosition(int x, int y);
+Decorator focusPositionRelative(float x, float y);
 
 // --- Layout is
 // Horizontal, Vertical or stacked set of elements.
 Element hbox(Elements);
 Element vbox(Elements);
 Element dbox(Elements);
+Element flexbox(Elements, FlexboxConfig config = FlexboxConfig());
 Element gridbox(std::vector<Elements> lines);
-Element hflow(Elements);
+
+Element hflow(Elements);  // Helper: default flexbox with row direction.
+Element vflow(Elements);  // Helper: default flexbox with column direction.
 
 // -- Flexibility ---
 // Define how to share the remaining space when not all of it is used inside a
