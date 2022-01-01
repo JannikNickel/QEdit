@@ -163,7 +163,7 @@ void AddAdditionalOptions(OptionCollection& options)
 	FramerateOption* vFramerateOption = FindOption<FramerateOption>(options);
 	ResolutionOption* vResolutionOption = FindOption<ResolutionOption>(options);
 	CodecOption* vCodecOption = FindOption<CodecOption>(options);
-	if(!vBitrateOption->enabled && !vBitrateOption->enabled && !vBitrateOption->enabled && !vCodecOption->enabled)
+	if(!vBitrateOption->enabled && !vFramerateOption->enabled && !vResolutionOption->enabled && !vCodecOption->enabled)
 	{
 		options.push_back(new CopyOption());
 	}
@@ -215,8 +215,8 @@ void StartEncoding(UI& ui, OptionCollection& options)
 			ui->ForceRedraw();
 		}, encodingProcess);
 		isEncoding.store(false);
-		EncodingFinished(*ui, options, success);
 		delete encodingThread;
+		EncodingFinished(*ui, options, success);
 	}, cmd, options, &ui, pDialog, startOption->enabled ? startOption->seconds : 0.0f, durationOption->enabled ? durationOption->seconds : 0.0f);
 	encodingThread->detach();
 }
@@ -255,8 +255,7 @@ void AdjustInOutPaths(std::string& inputPath, std::string& outputPath)
 
 std::string BuildFFmpegCmdLine(OptionCollection& const options)
 {
-	std::string ffmpegPath = GetWorkingDirectory() + ffmpegPath;
-	std::string cmd = ffmpegPath;
+	std::string cmd = GetWorkingDirectory() + ffmpegPath;
 	for(OptionType type : optionOrder)
 	{
 		for(Option* op : options)

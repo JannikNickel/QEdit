@@ -11,12 +11,15 @@ std::vector<ftxui::Component> LoadPresetLayer::GenComponents()
 	ftxui::MenuOption menuOption;
 	menuOption.on_enter = [&]
 	{
-		loadPresetCallback(presetPaths[selectedPreset]);
+		if(enabled)
+		{
+			loadPresetCallback(presetPaths[selectedPreset]);
+		}
 	};
 	menuOption.on_change = [&]
 	{
 		//Only react if left mouse button was pressed during last frame
-		if(lmb)
+		if(enabled && lmb)
 		{
 			loadPresetCallback(presetPaths[selectedPreset]);
 		}

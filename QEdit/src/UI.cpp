@@ -22,6 +22,7 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback,
 	ftxui::Components components;
 	for(UILayer* layer : layers)
 	{
+		layer->enabled = false;
 		std::vector<ftxui::Component> comps = layer->GenComponents();
 		components.insert(components.end(), comps.begin(), comps.end());
 	}
@@ -34,7 +35,17 @@ void UI::Run(std::vector<Option*> options, std::function<void()> encodeCallback,
 	ftxui::ToggleOption tabOption;
 	tabOption.on_change = [&]
 	{
-		((LoadPresetLayer*)layers[1])->FindPresets();
+		if(selectedLayer >= 0 && selectedLayer < layers.size())
+		{
+			for(int i = 0; i < layers.size(); i++)
+			{
+				layers[i]->enabled = i == selectedLayer;
+			}
+			if(selectedLayer == 1)
+			{
+				((LoadPresetLayer*)layers[1])->FindPresets();
+			}
+		}
 	};
 	ftxui::Component tab = ftxui::Toggle(&menuItems, &selectedLayer, tabOption);
 	components.push_back(tab);
