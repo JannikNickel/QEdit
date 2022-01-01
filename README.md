@@ -1,15 +1,24 @@
 # QEdit
+QEdit is a simple video transcoding tool which works in the Windows terminal.
 
-## Requirements
-QEdit only works on windows!
+![img](https://i.imgur.com/v7nIVj7.gif)
 
-In order to build and use this application ffmpeg has to be copied into the /QEdit/lib/ffmpeg/ directory.
-Download binaries from https://github.com/BtbN/FFmpeg-Builds/releases (win64-lgpl-shared) or build ffmpeg yourself. Then copy the contents of the bin/ folder into /QEdit/lib/ffmpeg/.
+## Dependencies
+- FFmpeg (https://github.com/FFmpeg/FFmpeg)
+- FTXUI (https://github.com/ArthurSonzogni/FTXUI)
 
 ## Build
-The repository contains a visual studio 2019 solution file which can be opened in visual studio and compiled.
+QEdit only works on windows!
+In order to build and use this application, ffmpeg has to be copied into the /QEdit/lib/ffmpeg/ directory.
+Binaries can be downloaded from https://github.com/BtbN/FFmpeg-Builds/releases (ffmpeg-n4.4-latest-win64-lgpl-shared-4.4.zip) or you can build ffmpeg yourself. Then copy the contents of the ffmpeg bin/ folder (ffmpeg.exe and other libraries) into /QEdit/lib/ffmpeg. The application was developed with FFmpeg 4.4 but should work with newer versions too.
 
-## TODO
-- [ ] Dont use the console window to display ffmpeg (std::system). Instead use CreateProcess to run ffmpeg in a separate process and do error/progress reporting in the console
-- [ ] Some sort of UI (either GUI or console menus) to enable and set different options
-- [ ] (If GUI) implement a preview for the video and handles to choose start/end points
+The repository contains visual studio 2022 solution and project files which can be opened in visual studio and compiled into a 64bit windows executable which can be found in the /Build/ directory.
+
+## Possible improvements
+- Reading of input file video meta data and validating settings
+    - There is currently no validation if the settings make sense for the current input file (e.g. start time or duration within are within the input file, or bitrate is <= than the input file's bitrate)
+- Using input video file settings for unset values
+    - FFmpeg will choose a bitrate by itself if, for instance, only the resolution is changed. It would be better to use the source file's bitrate in that case to prevent bad video quality
+    - If no video changes are selected, the copy flag will be set and the video quality wont be altered!
+- Support more codecs and other options
+    - FFmpeg supports a variety of codecs and other options. This tool currently only implements the most relevant ones to quickly cut and compress clips to upload them to various online platforms.
