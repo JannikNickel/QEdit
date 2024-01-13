@@ -1,3 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+#lfs
+*.dll filter=lfs diff=lfs merge=lfs -text
 *.lib filter=lfs diff=lfs merge=lfs -text
+
+*.bmp filter=lfs diff=lfs merge=lfs -text
+*.ico filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+
+#Github linguist settings
+[Ee]xternal/** linguist-vendored
