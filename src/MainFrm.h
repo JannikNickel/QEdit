@@ -1,5 +1,6 @@
 #pragma once
 #include "PropertiesWnd.h"
+#include "CMediaCtrlWnd.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -9,6 +10,7 @@ protected:
 
 	// Attributes
 public:
+	CMediaCtrlWnd* GetMediaCtrl();
 
 	// Operations
 public:
@@ -27,16 +29,22 @@ public:
 	#endif
 
 protected:  // control bar embedded members
-	CMFCMenuBar       m_wndMenuBar;
-	CPropertiesWnd    m_wndProperties;
+	CMFCMenuBar m_wndMenuBar;
+	CPropertiesWnd m_wndProperties;
+	CMediaCtrlWnd m_wndMediaCtrl;
 
 	// Generated message map functions
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnViewProperties();
 	afx_msg void OnUpdateViewProperties(CCmdUI* pCmdUI);
+	afx_msg LRESULT OnViewSizeChanged(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnMediaCtrlChanged();
 	DECLARE_MESSAGE_MAP()
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
+
+	void UpdateMediaCtrlLayout();
 };

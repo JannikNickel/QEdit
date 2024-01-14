@@ -6,6 +6,8 @@
 #include "QEditView.h"
 #include "MainFrm.h"
 
+#include "usermsg.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -16,6 +18,7 @@ BEGIN_MESSAGE_MAP(CQEditView, CView)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_WM_DROPFILES()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 CQEditView::CQEditView() noexcept
@@ -38,6 +41,7 @@ void CQEditView::OnInitialUpdate()
 {
 	CView::OnInitialUpdate();
 	DragAcceptFiles(TRUE);
+	GetParent()->SendMessage(WM_CUSTOM_VIEW_SIZE_CHANGED);
 }
 
 void CQEditView::OnDraw(CDC* pDC)
@@ -83,16 +87,21 @@ void CQEditView::OnDraw(CDC* pDC)
 		int targetHeight = vidRatio > wndRatio ? static_cast<int>(width / vidRatio) : height;
 
 		//Get video params
-		float frame = 0.0f;
+		float time = 0.0f;
 		CMainFrame* mainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
 		if(mainFrm != nullptr)
 		{
-			frame = 15.0f;
+			CMediaCtrlWnd* mediaCtrl = mainFrm->GetMediaCtrl();
+			if(mediaCtrl != nullptr)
+			{
+				time = mediaCtrl->CurrentTime() * pDoc->Duration();
+				mediaCtrl->SetVideoInfo(pDoc->Duration(), pDoc->FrameCount());
+			}
 		}
 
 		//Render video frame
 		CBitmap bitmap = CBitmap();
-		if(pDoc->GetVideoFrame(frame, targetWidth, targetHeight, &bitmap))
+		if(pDoc->GetVideoFrame(time, targetWidth, targetHeight, &bitmap))
 		{
 			CDC memDC;
 			memDC.CreateCompatibleDC(pDC);
@@ -140,6 +149,13 @@ void CQEditView::OnDropFiles(HDROP hDropInfo)
 		AfxMessageBox(_T("Expected a single file!"), MB_ICONEXCLAMATION | MB_OK);
 	}
 	DragFinish(hDropInfo);
+}
+
+void CQEditView::OnSize(UINT nType, int cx, int cy)
+{
+	CView::OnSize(nType, cx, cy);
+
+	GetParent()->SendMessage(WM_CUSTOM_VIEW_SIZE_CHANGED);
 }
 
 #ifdef _DEBUG

@@ -14,9 +14,13 @@ public:
 	virtual ~CQEditDoc();
 
 	virtual BOOL OnNewDocument();
-	std::tuple<int, int> VideoResolution();
+
 	bool HasVideo() const;
 	CString* FilePath() const;
+
+	std::tuple<int, int> VideoResolution() const;
+	float Duration() const;
+	int FrameCount() const;
 
 	bool SetVideoFile(const char* path);
 	bool GetVideoFrame(float time, int width, int height, CBitmap* bitmap) const;

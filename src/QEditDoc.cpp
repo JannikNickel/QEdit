@@ -31,13 +31,6 @@ BOOL CQEditDoc::OnNewDocument()
 	return TRUE;
 }
 
-std::tuple<int, int> CQEditDoc::VideoResolution()
-{
-	return vidStream != nullptr
-		? std::make_tuple(vidStream->codecpar->width, vidStream->codecpar->height)
-		: std::make_tuple(0, 0);
-}
-
 bool CQEditDoc::HasVideo() const
 {
 	return filePath != nullptr;
@@ -46,6 +39,23 @@ bool CQEditDoc::HasVideo() const
 CString* CQEditDoc::FilePath() const
 {
 	return filePath;
+}
+
+std::tuple<int, int> CQEditDoc::VideoResolution() const
+{
+	return vidStream != nullptr
+		? std::make_tuple(vidStream->codecpar->width, vidStream->codecpar->height)
+		: std::make_tuple(0, 0);
+}
+
+float CQEditDoc::Duration() const
+{
+	return vidStream != nullptr ? vidStream->duration * av_q2d(vidStream->time_base) : 0.0f;
+}
+
+int CQEditDoc::FrameCount() const
+{
+	return vidStream != nullptr ? static_cast<int>(av_q2d(vidStream->avg_frame_rate) * Duration()) : 0;
 }
 
 bool CQEditDoc::SetVideoFile(const char* path)
