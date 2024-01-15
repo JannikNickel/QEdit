@@ -18,7 +18,7 @@ CQEditDoc::CQEditDoc() noexcept
 
 CQEditDoc::~CQEditDoc()
 {
-
+	DiscardLoadedFrames();
 }
 
 BOOL CQEditDoc::OnNewDocument()
@@ -69,21 +69,63 @@ bool CQEditDoc::SetVideoFile(const char* path)
 	return true;
 }
 
-bool CQEditDoc::GetVideoFrame(float time, int width, int height, CBitmap* bitmap) const
+bool CQEditDoc::GetVideoFrame(float time, int width, int height, CBitmap* bitmap)
 {
-	int64_t timestamp = static_cast<int64_t>(time * AV_TIME_BASE);
-	if(av_seek_frame(fContext, vidStream->index, timestamp, AVSEEK_FLAG_BACKWARD) < 0)
+	int64_t timestamp = static_cast<int64_t>(time / av_q2d(vidStream->time_base));
+	auto [loadedMin, loadedMax] = loadedFrameRange;
+	if(frames.size() == 0 || (loadedMin > timestamp || timestamp > loadedMax))
 	{
-		return false;
+		bool isInRange = IsInIFrameRange(loadedMin, timestamp);
+		if(!isInRange)
+		{
+			DiscardLoadedFrames();
+		}
+		loadedFrameRange = LoadFrameRange(loadedMin, timestamp, !isInRange, false);
+	}
+
+	for(size_t i = 0; i < frames.size(); i++)
+	{
+		if(frames[i].pts >= timestamp)
+		{
+			size_t closestFrameIndex = i > 0 && abs(frames[i - 1].pts - timestamp) < abs(frames[i].pts - timestamp) ? i - 1 : i;
+			return WriteFrameToBitmap(frames[closestFrameIndex].frame, static_cast<int>(round(width / 4.0) * 4.0), static_cast<int>(round(height / 4.0) * 4.0), bitmap);
+		}
+	}
+	return false;
+}
+
+void CQEditDoc::DiscardLoadedFrames()
+{
+	for(FrameData frame : frames)
+	{
+		av_frame_free(&frame.frame);
+	}
+	frames.clear();
+}
+
+std::tuple<int64_t, int64_t> CQEditDoc::LoadFrameRange(int64_t lIFrame, int64_t timestamp, bool seek, bool full)
+{
+	if(seek && av_seek_frame(fContext, vidStream->index, timestamp, AVSEEK_FLAG_BACKWARD) < 0)
+	{
+		return { 0, 0 };
 	}
 
 	AVPacket* packet = av_packet_alloc();
-	AVFrame* frame = av_frame_alloc();
 	bool found = false;
+	bool firstPkt = true;
+	bool firstFrm = true;
+	int64_t start = !seek ? lIFrame : INT64_MAX;
+	int64_t end = 0;
 	while(av_read_frame(fContext, packet) >= 0)
 	{
 		if(packet->stream_index == vidStream->index)
 		{
+			if(!firstPkt && full && packet->flags & AV_PKT_FLAG_KEY)
+			{
+				break;
+			}
+			firstPkt = false;
+
 			if(avcodec_send_packet(codecContext, packet) < 0)
 			{
 				break;
@@ -91,6 +133,7 @@ bool CQEditDoc::GetVideoFrame(float time, int width, int height, CBitmap* bitmap
 
 			int res = 0;
 			bool error = false;
+			AVFrame* frame = av_frame_alloc();
 			while(res >= 0)
 			{
 				res = avcodec_receive_frame(codecContext, frame);
@@ -99,8 +142,11 @@ bool CQEditDoc::GetVideoFrame(float time, int width, int height, CBitmap* bitmap
 					error = res != AVERROR(EAGAIN) && res != AVERROR_EOF;
 					break;
 				}
-				found = true;
-				WriteFrameToBitmap(frame, static_cast<int>(round(width / 4.0) * 4.0), static_cast<int>(round(height / 4.0) * 4.0), bitmap);
+
+				start = min(start, packet->pts);
+				end = packet->pts;
+				found = !full && packet->pts >= timestamp;
+				frames.push_back(FrameData { .pts = packet->pts, .frame = frame });
 				break;
 			}
 
@@ -112,8 +158,19 @@ bool CQEditDoc::GetVideoFrame(float time, int width, int height, CBitmap* bitmap
 	}
 
 	av_packet_free(&packet);
-	av_frame_free(&frame);
-	return found;
+	return { start, end };
+}
+
+bool CQEditDoc::IsInIFrameRange(int64_t lIFrame, int64_t timestamp)
+{
+	for(int i = iFrames.size() - 1; i >= 0; i--)
+	{
+		if(iFrames[i] < timestamp)
+		{
+			return iFrames[i] == lIFrame;
+		}
+	}
+	return false;
 }
 
 bool CQEditDoc::OpenVideoStream(const char* path)
@@ -182,7 +239,32 @@ bool CQEditDoc::OpenVideoStream(const char* path)
 	this->fContext = fContext;
 	this->vidStream = vidStream;
 	this->codecContext = codecContext;
+	this->iFrames = FindIFrames();
 	return true;
+}
+
+std::vector<int64_t> CQEditDoc::FindIFrames()
+{
+	if(av_seek_frame(fContext, vidStream->index, 0, AVSEEK_FLAG_BACKWARD) < 0)
+	{
+		return { 0, 0 };
+	}
+
+	std::vector<int64_t> frames = {};
+	AVPacket* packet = av_packet_alloc();
+	while(av_read_frame(fContext, packet) >= 0)
+	{
+		if(packet->stream_index == vidStream->index)
+		{
+			if(packet->flags & AV_PKT_FLAG_KEY)
+			{
+				frames.push_back(packet->pts);
+			}
+		}
+	}
+
+	av_packet_free(&packet);
+	return frames;
 }
 
 bool CQEditDoc::WriteFrameToBitmap(const AVFrame* frame, int width, int height, CBitmap* bitmap) const
