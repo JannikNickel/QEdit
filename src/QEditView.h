@@ -32,6 +32,7 @@ protected:
 
 // Generated message map functions
 protected:
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnDropFiles(HDROP hDropInfo);

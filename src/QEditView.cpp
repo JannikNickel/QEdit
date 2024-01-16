@@ -15,6 +15,7 @@
 IMPLEMENT_DYNCREATE(CQEditView, CView)
 
 BEGIN_MESSAGE_MAP(CQEditView, CView)
+	ON_WM_ERASEBKGND()
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_WM_DROPFILES()
@@ -44,7 +45,7 @@ void CQEditView::OnInitialUpdate()
 	GetParent()->SendMessage(WM_CUSTOM_VIEW_SIZE_CHANGED);
 }
 
-void CQEditView::OnDraw(CDC* pDC)
+void CQEditView::OnDraw(CDC* cdc)
 {
 	CQEditDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -52,6 +53,11 @@ void CQEditView::OnDraw(CDC* pDC)
 	{
 		return;
 	}
+
+	//Double buffering
+	CMemDC dbMemDC = CMemDC(*cdc, this);
+	CDC& dbDC = dbMemDC.GetDC();
+	CDC* pDC = &dbDC;
 
 	CRect rect;
 	this->GetClientRect(&rect);
@@ -112,6 +118,12 @@ void CQEditView::OnDraw(CDC* pDC)
 			memDC.SelectObject(old);
 		}
 	}
+}
+
+BOOL CQEditView::OnEraseBkgnd(CDC* pDC)
+{
+	//Required to prevent flickering (in combination with CMemDC double buffering in OnDraw)
+	return TRUE;
 }
 
 void CQEditView::OnContextMenu(CWnd* pWnd, CPoint point)
