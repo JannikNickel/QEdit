@@ -48,9 +48,9 @@ std::tuple<int, int> CQEditDoc::VideoResolution() const
 		: std::make_tuple(0, 0);
 }
 
-float CQEditDoc::Duration() const
+double CQEditDoc::Duration() const
 {
-	return vidStream != nullptr ? vidStream->duration * av_q2d(vidStream->time_base) : 0.0f;
+	return vidStream != nullptr ? vidStream->duration * av_q2d(vidStream->time_base) : 0.0;
 }
 
 int CQEditDoc::FrameCount() const
@@ -58,9 +58,9 @@ int CQEditDoc::FrameCount() const
 	return vidStream != nullptr ? static_cast<int>(av_q2d(vidStream->avg_frame_rate) * Duration()) : 0;
 }
 
-float CQEditDoc::AvgFps() const
+double CQEditDoc::AvgFps() const
 {
-	return vidStream != nullptr ? av_q2d(vidStream->avg_frame_rate) : 0.0f;
+	return vidStream != nullptr ? av_q2d(vidStream->avg_frame_rate) : 0.0;
 }
 
 bool CQEditDoc::SetVideoFile(const char* path)
@@ -74,7 +74,7 @@ bool CQEditDoc::SetVideoFile(const char* path)
 	return true;
 }
 
-bool CQEditDoc::GetVideoFrame(float time, int width, int height, CBitmap* bitmap)
+bool CQEditDoc::GetVideoFrame(double time, int width, int height, CBitmap* bitmap)
 {
 	int64_t timestamp = static_cast<int64_t>(time / av_q2d(vidStream->time_base));
 	auto [loadedMin, loadedMax] = loadedFrameRange;
@@ -148,10 +148,10 @@ std::tuple<int64_t, int64_t> CQEditDoc::LoadFrameRange(int64_t lIFrame, int64_t 
 					break;
 				}
 
-				start = min(start, packet->pts);
-				end = packet->pts;
-				found = !full && packet->pts >= timestamp;
-				frames.push_back(FrameData { .pts = packet->pts, .frame = frame });
+				start = min(start, frame->pts);
+				end = frame->pts;
+				found = !full && frame->pts >= timestamp;
+				frames.push_back(FrameData { .pts = frame->pts, .frame = frame });
 				break;
 			}
 

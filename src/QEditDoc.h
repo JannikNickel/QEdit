@@ -26,12 +26,12 @@ public:
 	CString* FilePath() const;
 
 	std::tuple<int, int> VideoResolution() const;
-	float Duration() const;
+	double Duration() const;
 	int FrameCount() const;
-	float AvgFps() const;
+	double AvgFps() const;
 
 	bool SetVideoFile(const char* path);
-	bool GetVideoFrame(float time, int width, int height, CBitmap* bitmap);
+	bool GetVideoFrame(double time, int width, int height, CBitmap* bitmap);
 
 protected:
 	CQEditDoc() noexcept;

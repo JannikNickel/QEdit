@@ -15,16 +15,15 @@ BOOL CTimeCtrlBar::Create(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UIN
 	return CWnd::Create(GetGlobalData()->RegisterWindowClass(_T("QEdit:CTimeCtrlBar")), _T(""), dwStyle, rect, pParentWnd, nID);
 }
 
-float CTimeCtrlBar::Progress() const
+double CTimeCtrlBar::Progress() const
 {
 	return m_Progress;
 }
 
-void CTimeCtrlBar::SetProgress(float progress)
+void CTimeCtrlBar::SetProgress(double progress)
 {
-	m_Progress = std::clamp(progress, 0.0f, 1.0f);
+	m_Progress = std::clamp(progress, 0.0, 1.0);
 	Invalidate();
-
 	GetParent()->SendMessage(WM_COMMAND, ID_CUSTOM_MEDIA_CTRL_CHANGED);
 }
 
@@ -32,7 +31,7 @@ void CTimeCtrlBar::PointToProgress(CPoint point)
 {
 	CRect rect;
 	GetClientRect(&rect);
-	float p = point.x / static_cast<float>(rect.Width());
+	double p = point.x / static_cast<double>(rect.Width());
 	SetProgress(p);
 }
 

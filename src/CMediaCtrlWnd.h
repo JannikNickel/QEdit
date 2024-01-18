@@ -9,26 +9,29 @@ public:
 	CMediaCtrlWnd(CWnd* pParent = nullptr);
 	~CMediaCtrlWnd();
 
-	float CurrentTime() const;
-	void SetVideoInfo(float totalTime, int totalFrames, float fps);
+	double CurrentTime() const;
+	void SetVideoInfo(double totalTime, int totalFrames, double fps);
 
 protected:
 	CTimeCtrlBar m_wndTimeCtrl;
 	bool isPlaying = false;
 
-	float totalTime = 0.0f;
+	double totalTime = 0.0;
 	int totalFrames = 0;
-	float videoFps = 60.0f;
+	double videoFps = 60.0;
 
 	HighResolutionTimer* timer = nullptr;
 
 	BOOL OnInitDialog() override;
-	void OnHighResTimer(float dt);
+	void OnHighResTimer(double dt);
+	void MoveProgress(double seconds);
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnMediaCtrlChanged();
 	afx_msg void OnMediaCtrlPlaybackThreadChanged();
 	afx_msg void OnPlayButtonClicked();
+	afx_msg void OnPrevButtonClicked();
+	afx_msg void OnNextButtonClicked();
 
 	DECLARE_MESSAGE_MAP();
 };

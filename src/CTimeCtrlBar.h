@@ -11,11 +11,11 @@ public:
 
 	BOOL Create(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID);
 
-	float Progress() const;
-	void SetProgress(float progress);
+	double Progress() const;
+	void SetProgress(double progress);
 
 protected:
-	float m_Progress = 0.0f;
+	double m_Progress = 0.0;
 	bool m_Dragging = false;
 
 	void PointToProgress(CPoint point);

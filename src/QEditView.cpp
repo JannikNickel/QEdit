@@ -87,13 +87,13 @@ void CQEditView::OnDraw(CDC* cdc)
 
 		//Calculate target size
 		auto [vidWidth, vidHeight] = pDoc->VideoResolution();
-		float vidRatio = vidWidth / static_cast<float>(vidHeight);
-		float wndRatio = width / static_cast<float>(height);
+		double vidRatio = vidWidth / static_cast<double>(vidHeight);
+		double wndRatio = width / static_cast<double>(height);
 		int targetWidth = vidRatio < wndRatio ? static_cast<int>(height * vidRatio) : width;
 		int targetHeight = vidRatio > wndRatio ? static_cast<int>(width / vidRatio) : height;
 
 		//Get video params
-		float time = 0.0f;
+		double time = 0.0;
 		CMainFrame* mainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
 		if(mainFrm != nullptr)
 		{

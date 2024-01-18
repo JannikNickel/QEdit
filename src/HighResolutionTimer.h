@@ -8,7 +8,7 @@ class HighResolutionTimer
 	using Clock = std::chrono::high_resolution_clock;
 
 public:
-	HighResolutionTimer(std::function<void(float)>&& callback) : callback(std::move(callback))
+	HighResolutionTimer(std::function<void(double)>&& callback) : callback(std::move(callback))
 	{
 		thread = std::thread(&HighResolutionTimer::Run, this);
 	}
@@ -18,7 +18,7 @@ public:
 		Stop();
 	}
 
-	float CurrDeltaTime() const
+	double CurrDeltaTime() const
 	{
 		return currDt;
 	}
@@ -34,9 +34,9 @@ public:
 
 private:
 	std::atomic<bool> isRunning = true;
-	std::function<void(float)> callback;
+	std::function<void(double)> callback;
 	std::thread thread;
-	std::atomic<float> currDt = 0.0f;
+	std::atomic<double> currDt = 0.0;
 
 	void Run()
 	{
@@ -44,7 +44,7 @@ private:
 		while(isRunning)
 		{
 			auto t2 = Clock::now();
-			float dt = static_cast<float>(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() * 1e-9);
+			double dt = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() * 1e-9);
 			t1 = t2;
 			currDt = dt;
 			callback(dt);

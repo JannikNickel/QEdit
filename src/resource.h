@@ -31,6 +31,8 @@
 #define IDC_MCTRL_TEXT_FRAME            1001
 #define IDC_MCTRL_TIMELINE_PROGRESS     1002
 #define IDC_MCTRL_TEXT_TIME             1003
+#define IDC_MCTRL_BTN_NEXT              1004
+#define IDC_MCTRL_BTN_PREV              1005
 #define ID_FILE_SETTINGS                32771
 #define ID_CONVERT                      32772
 #define ID_VIEW_PROPERTIES              32773
@@ -42,7 +44,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        313
 #define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
