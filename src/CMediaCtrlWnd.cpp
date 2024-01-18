@@ -8,11 +8,18 @@
 BEGIN_MESSAGE_MAP(CMediaCtrlWnd, CDialogEx)
 	ON_WM_SIZE()
 	ON_COMMAND(ID_CUSTOM_MEDIA_CTRL_CHANGED, &CMediaCtrlWnd::OnMediaCtrlChanged)
+	ON_COMMAND(ID_CUSTOM_MEDIA_CTRL_PLAYBACK_THREAD_CHANGED, &CMediaCtrlWnd::OnMediaCtrlPlaybackThreadChanged)
+	ON_BN_CLICKED(IDC_MCTRL_BTN_PLAY, &CMediaCtrlWnd::OnPlayButtonClicked)
 END_MESSAGE_MAP()
 
 CMediaCtrlWnd::CMediaCtrlWnd(CWnd* pParent) : CDialogEx(IDD_MEDIACTRL, pParent)
 {
+	
+}
 
+CMediaCtrlWnd::~CMediaCtrlWnd()
+{
+	delete timer;
 }
 
 float CMediaCtrlWnd::CurrentTime() const
@@ -20,10 +27,11 @@ float CMediaCtrlWnd::CurrentTime() const
 	return m_wndTimeCtrl.Progress();
 }
 
-void CMediaCtrlWnd::SetVideoInfo(float totalTime, int totalFrames)
+void CMediaCtrlWnd::SetVideoInfo(float totalTime, int totalFrames, float fps)
 {
 	this->totalTime = totalTime;
 	this->totalFrames = totalFrames;
+	this->videoFps = fps;
 }
 
 BOOL CMediaCtrlWnd::OnInitDialog()
@@ -38,7 +46,23 @@ BOOL CMediaCtrlWnd::OnInitDialog()
 		return FALSE;
 	}
 
+	timer = new HighResolutionTimer(std::bind(&CMediaCtrlWnd::OnHighResTimer, this, std::placeholders::_1));
 	return TRUE;
+}
+
+void CMediaCtrlWnd::OnHighResTimer(float dt)
+{
+	static float t = 0.0f;
+	float targetStep = 1.0f / (videoFps != 0.0f ? videoFps : 1.0f);
+	t += dt;
+	if(t >= targetStep)
+	{
+		t = 0.0f;
+		if(GetSafeHwnd())
+		{
+			SendMessage(WM_COMMAND, ID_CUSTOM_MEDIA_CTRL_PLAYBACK_THREAD_CHANGED);
+		}
+	}
 }
 
 void CMediaCtrlWnd::OnSize(UINT nType, int cx, int cy)
@@ -83,4 +107,27 @@ void CMediaCtrlWnd::OnMediaCtrlChanged()
 	}
 
 	GetParent()->SendMessage(WM_COMMAND, ID_CUSTOM_MEDIA_CTRL_CHANGED);
+}
+
+void CMediaCtrlWnd::OnMediaCtrlPlaybackThreadChanged()
+{
+	if(isPlaying)
+	{
+		float p = m_wndTimeCtrl.Progress() + (1.0f / videoFps / totalTime);
+		m_wndTimeCtrl.SetProgress(p);
+		if(p >= 1.0f)
+		{
+			OnPlayButtonClicked();
+		}
+	}
+}
+
+void CMediaCtrlWnd::OnPlayButtonClicked()
+{
+	CButton* button = (CButton*)GetDlgItem(IDC_MCTRL_BTN_PLAY);
+	if(button != nullptr)
+	{
+		isPlaying = !isPlaying;
+		button->SetWindowText(isPlaying ? _T("||") : _T(">"));
+	}
 }

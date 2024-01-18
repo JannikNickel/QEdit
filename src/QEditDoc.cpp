@@ -58,6 +58,11 @@ int CQEditDoc::FrameCount() const
 	return vidStream != nullptr ? static_cast<int>(av_q2d(vidStream->avg_frame_rate) * Duration()) : 0;
 }
 
+float CQEditDoc::AvgFps() const
+{
+	return vidStream != nullptr ? av_q2d(vidStream->avg_frame_rate) : 0.0f;
+}
+
 bool CQEditDoc::SetVideoFile(const char* path)
 {
 	if(!OpenVideoStream(path))

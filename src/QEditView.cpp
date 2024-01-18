@@ -101,7 +101,7 @@ void CQEditView::OnDraw(CDC* cdc)
 			if(mediaCtrl != nullptr)
 			{
 				time = mediaCtrl->CurrentTime() * pDoc->Duration();
-				mediaCtrl->SetVideoInfo(pDoc->Duration(), pDoc->FrameCount());
+				mediaCtrl->SetVideoInfo(pDoc->Duration(), pDoc->FrameCount(), pDoc->AvgFps());
 			}
 		}
 

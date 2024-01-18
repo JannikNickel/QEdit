@@ -230,6 +230,7 @@
     <ClInclude Include="src/targetver.h" />
     <ClInclude Include="src\CMediaCtrlWnd.h" />
     <ClInclude Include="src\CTimeCtrlBar.h" />
+    <ClInclude Include="src\HighResolutionTimer.h" />
     <ClInclude Include="src\usermsg.h" />
   </ItemGroup>
   <ItemGroup>
