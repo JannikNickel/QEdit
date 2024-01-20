@@ -33,7 +33,7 @@
 #define IDC_MCTRL_TEXT_TIME             1003
 #define IDC_MCTRL_BTN_NEXT              1004
 #define IDC_MCTRL_BTN_PREV              1005
-#define IDC_MCTRL_RANGE_SELECTION		1006
+#define IDC_MCTRL_RANGE_SELECTION       1006
 #define ID_FILE_SETTINGS                32771
 #define ID_CONVERT                      32772
 #define ID_VIEW_PROPERTIES              32773

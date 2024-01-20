@@ -1,4 +1,5 @@
 #pragma once
+#include "CMediaCtrlWnd.h"
 
 class CQEditView : public CView
 {
@@ -32,6 +33,8 @@ protected:
 
 // Generated message map functions
 protected:
+	CMediaCtrlWnd* GetMediaCtrl() const;
+
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);

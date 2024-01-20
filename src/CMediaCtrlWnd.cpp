@@ -29,11 +29,25 @@ double CMediaCtrlWnd::CurrentTime() const
 	return m_wndTimeCtrl.Progress();
 }
 
-void CMediaCtrlWnd::SetVideoInfo(double totalTime, int totalFrames, double fps)
+void CMediaCtrlWnd::InitVideoInfo(double totalTime, int totalFrames, double fps)
 {
 	this->totalTime = totalTime;
 	this->totalFrames = totalFrames;
 	this->videoFps = fps;
+	Reset();
+}
+
+void CMediaCtrlWnd::Reset()
+{
+	if(m_wndTimeCtrl.GetSafeHwnd())
+	{
+		m_wndTimeCtrl.SetProgress(0.0);
+	}
+	if(m_WndTimeRangeSelection.GetSafeHwnd())
+	{
+		m_WndTimeRangeSelection.SetRange(0.0, 1.0);
+	}
+	Invalidate();
 }
 
 BOOL CMediaCtrlWnd::OnInitDialog()
@@ -78,6 +92,19 @@ void CMediaCtrlWnd::MoveProgress(double seconds)
 	m_wndTimeCtrl.SetProgress(p);
 }
 
+void CMediaCtrlWnd::UpdateTimeText()
+{
+	double p = m_wndTimeCtrl.Progress();
+
+	CStatic* m_wndTimeLabel = (CStatic*)GetDlgItem(IDC_MCTRL_TEXT_TIME);
+	if(m_wndTimeLabel != nullptr)
+	{
+		CString timeStr;
+		timeStr.Format(_T("%.1f / %.1fs\n"), p * totalTime, totalTime);
+		m_wndTimeLabel->SetWindowText(timeStr);
+	}
+}
+
 void CMediaCtrlWnd::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
@@ -100,30 +127,12 @@ void CMediaCtrlWnd::OnSize(UINT nType, int cx, int cy)
 		rect.top = 5;
 		rect.bottom = rect.top + 10;
 		m_WndTimeRangeSelection.MoveWindow(rect);
-		m_WndTimeRangeSelection.SetRange(0.25, 0.75);
 	}
 }
 
 void CMediaCtrlWnd::OnMediaCtrlChanged()
 {
-	double p = m_wndTimeCtrl.Progress();
-
-	CStatic* m_wndTimeLabel = (CStatic*)GetDlgItem(IDC_MCTRL_TEXT_TIME);
-	if(m_wndTimeLabel != nullptr)
-	{
-		CString timeStr;
-		timeStr.Format(_T("%.1f / %.1fs\n"), p * totalTime, totalTime);
-		m_wndTimeLabel->SetWindowText(timeStr);
-	}
-
-	/*CStatic* m_wndFrameLabel = (CStatic*)GetDlgItem(IDC_MCTRL_TEXT_FRAME);
-	if(m_wndFrameLabel != nullptr)
-	{
-		CString frameStr;
-		frameStr.Format(_T("%d / %d"), static_cast<int>(roundf(p * totalFrames)), totalFrames);
-		m_wndFrameLabel->SetWindowText(frameStr);
-	}*/
-
+	UpdateTimeText();
 	GetParent()->SendMessage(WM_COMMAND, ID_CUSTOM_MEDIA_CTRL_CHANGED);
 }
 

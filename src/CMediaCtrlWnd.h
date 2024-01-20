@@ -11,7 +11,8 @@ public:
 	~CMediaCtrlWnd();
 
 	double CurrentTime() const;
-	void SetVideoInfo(double totalTime, int totalFrames, double fps);
+	void InitVideoInfo(double totalTime, int totalFrames, double fps);
+	void Reset();
 
 protected:
 	CTimeCtrlBar m_wndTimeCtrl;
@@ -27,6 +28,7 @@ protected:
 	BOOL OnInitDialog() override;
 	void OnHighResTimer(double dt);
 	void MoveProgress(double seconds);
+	void UpdateTimeText();
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnMediaCtrlChanged();

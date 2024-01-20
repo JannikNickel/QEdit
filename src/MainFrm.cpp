@@ -3,6 +3,7 @@
 
 #include "QEdit.h"
 #include "MainFrm.h"
+#include "QEditDoc.h"
 
 #include "usermsg.h"
 
@@ -19,6 +20,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_PROPERTIES, &CMainFrame::OnUpdateViewProperties)
 	ON_MESSAGE(WM_CUSTOM_VIEW_SIZE_CHANGED, &CMainFrame::OnViewSizeChanged)
 	ON_COMMAND(ID_CUSTOM_MEDIA_CTRL_CHANGED, &CMainFrame::OnMediaCtrlChanged)
+	ON_COMMAND(ID_CUSTOM_VIDEO_LOADED, &CMainFrame::OnVideoLoaded)
+	ON_COMMAND(ID_CONVERT, &CMainFrame::OnConvert)
 END_MESSAGE_MAP()
 
 CMainFrame::CMainFrame() noexcept
@@ -69,6 +72,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndMediaCtrl.ShowWindow(TRUE);
 	UpdateMediaCtrlLayout();
+	UpdateWindowVisibility();
 
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
 
@@ -151,6 +155,24 @@ void CMainFrame::OnMediaCtrlChanged()
 	GetActiveView()->Invalidate();
 }
 
+void CMainFrame::OnVideoLoaded()
+{
+	UpdateWindowVisibility();
+	/*if(CMenu* menu = m_wndMenuBar.GetMenu())
+	{
+		menu->EnableMenuItem(ID_CONVERT, IsVideoLoaded());
+	}*/
+	for(size_t i = 0; i < m_wndMenuBar.GetCount(); i++)
+	{
+		if(m_wndMenuBar.GetItemID(i) == ID_CONVERT)
+		{
+			CMFCToolBarButton* button = m_wndMenuBar.GetButton(i);
+			button->EnableWindow(/*IsVideoLoaded()*/SW_SHOW);
+			break;
+		}
+	}
+}
+
 void CMainFrame::UpdateMediaCtrlLayout()
 {
 	if(m_wndMediaCtrl.GetSafeHwnd())
@@ -175,4 +197,23 @@ void CMainFrame::UpdateMediaCtrlLayout()
 			m_wndMediaCtrl.MoveWindow(&rect);
 		}
 	}
+}
+
+void CMainFrame::UpdateWindowVisibility()
+{
+	if(m_wndMediaCtrl.GetSafeHwnd())
+	{
+		m_wndMediaCtrl.ShowWindow(IsVideoLoaded());
+	}
+}
+
+bool CMainFrame::IsVideoLoaded()
+{
+	CQEditDoc* doc = dynamic_cast<CQEditDoc*>(GetActiveDocument());
+	return doc != nullptr && doc->HasVideo();
+}
+
+void CMainFrame::OnConvert()
+{
+	AfxMessageBox(_T("TODO"));
 }

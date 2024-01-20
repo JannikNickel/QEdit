@@ -45,7 +45,7 @@ void CQEditView::OnInitialUpdate()
 	GetParent()->SendMessage(WM_CUSTOM_VIEW_SIZE_CHANGED);
 }
 
-void CQEditView::OnDraw(CDC* cdc)
+void CQEditView::OnDraw(CDC* cDC)
 {
 	CQEditDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -53,12 +53,6 @@ void CQEditView::OnDraw(CDC* cdc)
 	{
 		return;
 	}
-
-	//Double buffering
-	CMemDC dbMemDC = CMemDC(*cdc, this);
-	CDC& dbDC = dbMemDC.GetDC();
-	CDC* pDC = &dbDC;
-
 	CRect rect;
 	this->GetClientRect(&rect);
 	int width = rect.Width();
@@ -68,19 +62,22 @@ void CQEditView::OnDraw(CDC* cdc)
 	{
 		CFont font;
 		font.CreatePointFont(200, _T("Calibri"));
-		CFont* oldFont = pDC->SelectObject(&font);
+		CFont* oldFont = cDC->SelectObject(&font);
 
 		CString str = _T("Drop video file here...");
-		CSize strSize = pDC->GetTextExtent(str);
-		pDC->SetTextColor(RGB(128, 128, 128));
-		pDC->TextOutW((width - strSize.cx) / 2, (height - strSize.cy) / 2, str);
+		CSize strSize = cDC->GetTextExtent(str);
+		cDC->SetTextColor(RGB(128, 128, 128));
+		cDC->TextOutW((width - strSize.cx) / 2, (height - strSize.cy) / 2, str);
 
-		pDC->SelectObject(oldFont);
-
-		pDoc->SetVideoFile("D://Desktop/2023-10-13 20-32-39.mp4");
+		cDC->SelectObject(oldFont);
 	}
 	else
 	{
+		//Double buffering
+		CMemDC dbMemDC = CMemDC(*cDC, this);
+		CDC& dbDC = dbMemDC.GetDC();
+		CDC* pDC = &dbDC;
+
 		//Render black bars as background
 		CBrush brush = CBrush(RGB(0, 0, 0));
 		pDC->FillRect(&rect, &brush);
@@ -94,15 +91,9 @@ void CQEditView::OnDraw(CDC* cdc)
 
 		//Get video params
 		double time = 0.0;
-		CMainFrame* mainFrm = dynamic_cast<CMainFrame*>(GetParentFrame());
-		if(mainFrm != nullptr)
+		if(CMediaCtrlWnd* mediaCtrl = GetMediaCtrl())
 		{
-			CMediaCtrlWnd* mediaCtrl = mainFrm->GetMediaCtrl();
-			if(mediaCtrl != nullptr)
-			{
-				time = mediaCtrl->CurrentTime() * pDoc->Duration();
-				mediaCtrl->SetVideoInfo(pDoc->Duration(), pDoc->FrameCount(), pDoc->AvgFps());
-			}
+			time = mediaCtrl->CurrentTime() * pDoc->Duration();
 		}
 
 		//Render video frame
@@ -118,6 +109,15 @@ void CQEditView::OnDraw(CDC* cdc)
 			memDC.SelectObject(old);
 		}
 	}
+}
+
+CMediaCtrlWnd* CQEditView::GetMediaCtrl() const
+{
+	if(CMainFrame* mainFrm = dynamic_cast<CMainFrame*>(GetParentFrame()))
+	{
+		return mainFrm->GetMediaCtrl();
+	}
+	return nullptr;
 }
 
 BOOL CQEditView::OnEraseBkgnd(CDC* pDC)
@@ -153,6 +153,11 @@ void CQEditView::OnDropFiles(HDROP hDropInfo)
 			if(!doc->SetVideoFile(file))
 			{
 				AfxMessageBox(_T("Input file is not a valid video file!"));
+			}
+			GetParent()->SendMessage(WM_COMMAND, ID_CUSTOM_VIDEO_LOADED);
+			if(CMediaCtrlWnd* mediaCtrl = GetMediaCtrl())
+			{
+				mediaCtrl->InitVideoInfo(doc->Duration(), doc->FrameCount(), doc->AvgFps());
 			}
 		}
 	}

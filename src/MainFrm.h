@@ -41,10 +41,15 @@ protected:
 	afx_msg void OnUpdateViewProperties(CCmdUI* pCmdUI);
 	afx_msg LRESULT OnViewSizeChanged(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnMediaCtrlChanged();
+	afx_msg void OnVideoLoaded();
+	afx_msg void OnConvert();
 	DECLARE_MESSAGE_MAP()
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
 
 	void UpdateMediaCtrlLayout();
+	void UpdateWindowVisibility();
+
+	bool IsVideoLoaded();
 };

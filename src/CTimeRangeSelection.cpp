@@ -22,8 +22,10 @@ std::tuple<double, double> CTimeRangeSelection::Range() const
 
 void CTimeRangeSelection::SetRange(double from, double to)
 {
-	from = from;
-	to = to;
+	from = min(from, to);
+	to = max(from, to);
+	this->from = std::clamp(from, 0.0, 1.0);
+	this->to = std::clamp(to, 0.0, 1.0);
 	Invalidate();
 }
 
@@ -31,8 +33,7 @@ double CTimeRangeSelection::PointToProgress(CPoint point)
 {
 	CRect rect;
 	GetClientRect(&rect);
-	double p = point.x / static_cast<double>(rect.Width());
-	return p;
+	return point.x / static_cast<double>(rect.Width());
 }
 
 void CTimeRangeSelection::DrawHandle(CPaintDC& pDC, double pos, bool min)
