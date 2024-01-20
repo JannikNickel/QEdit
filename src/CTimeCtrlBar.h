@@ -1,9 +1,5 @@
 #pragma once
 
-/*
-TODO
-Add a start/end indicator which is connected above the actual toolbar to modify the start and end position by dragging the indicators
-*/
 class CTimeCtrlBar : public CWnd
 {
 public:

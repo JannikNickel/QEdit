@@ -79,11 +79,6 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.SetVSDotNetLook(TRUE);
 	m_wndPropList.MarkModifiedProperties();
 
-	CMFCPropertyGridProperty* pGroup1 = new CMFCPropertyGridProperty(_T("Time"));
-	pGroup1->AddSubItem(new CMFCPropertyGridProperty(_T("Start"), (_variant_t)0.0, _T("")));
-	pGroup1->AddSubItem(new CMFCPropertyGridProperty(_T("End"), (_variant_t)0.0, _T("")));
-	m_wndPropList.AddProperty(pGroup1);
-
 	CMFCPropertyGridProperty* pGroup2 = new CMFCPropertyGridProperty(_T("Video"));
 	CMFCPropertyGridProperty* pSize = new CMFCPropertyGridProperty(_T("Resolution"), 0, TRUE);
 	CMFCPropertyGridProperty* pWidth = new CMFCPropertyGridProperty(_T("Width"), (_variant_t)1920, _T(""));

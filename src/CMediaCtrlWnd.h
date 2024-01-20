@@ -1,6 +1,7 @@
 #pragma once
 #include <afxdlgs.h>
 #include "CTimeCtrlBar.h"
+#include "CTimeRangeSelection.h"
 #include "HighResolutionTimer.h"
 
 class CMediaCtrlWnd : public CDialogEx
@@ -14,6 +15,7 @@ public:
 
 protected:
 	CTimeCtrlBar m_wndTimeCtrl;
+	CTimeRangeSelection m_WndTimeRangeSelection;
 	bool isPlaying = false;
 
 	double totalTime = 0.0;

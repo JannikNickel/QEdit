@@ -3,7 +3,7 @@
 #include "CTimeCtrlBar.h"
 #include <algorithm>
 
-BEGIN_MESSAGE_MAP(CTimeCtrlBar, CProgressCtrl)
+BEGIN_MESSAGE_MAP(CTimeCtrlBar, CWnd)
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
@@ -40,7 +40,7 @@ void CTimeCtrlBar::OnPaint()
 	CPaintDC pDC = CPaintDC(this);
 
 	CRect rect;
-	GetClientRect(rect);
+	GetClientRect(&rect);
 
 	pDC.FillSolidRect(rect, RGB(200, 200, 200));
 

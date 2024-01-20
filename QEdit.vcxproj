@@ -230,6 +230,7 @@
     <ClInclude Include="src/targetver.h" />
     <ClInclude Include="src\CMediaCtrlWnd.h" />
     <ClInclude Include="src\CTimeCtrlBar.h" />
+    <ClInclude Include="src\CTimeRangeSelection.h" />
     <ClInclude Include="src\HighResolutionTimer.h" />
     <ClInclude Include="src\usermsg.h" />
   </ItemGroup>
@@ -247,6 +248,7 @@
     <ClCompile Include="src/QEditView.cpp" />
     <ClCompile Include="src\CMediaCtrlWnd.cpp" />
     <ClCompile Include="src\CTimeCtrlBar.cpp" />
+    <ClCompile Include="src\CTimeRangeSelection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src/QEdit.rc" />

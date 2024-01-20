@@ -47,6 +47,11 @@ BOOL CMediaCtrlWnd::OnInitDialog()
 		TRACE0("Failed to create time control window\n");
 		return FALSE;
 	}
+	if(!m_WndTimeRangeSelection.Create(DS_CONTROL | WS_VISIBLE, CRect(45, 5, 500, 10), this, IDC_MCTRL_RANGE_SELECTION))
+	{
+		TRACE0("Failed to range selection window\n");
+		return FALSE;
+	}
 
 	timer = new HighResolutionTimer(std::bind(&CMediaCtrlWnd::OnHighResTimer, this, std::placeholders::_1));
 	return TRUE;
@@ -91,6 +96,11 @@ void CMediaCtrlWnd::OnSize(UINT nType, int cx, int cy)
 		rect.top += (rectHeight - height) / 2;
 		rect.bottom -= (rectHeight - height) / 2;
 		m_wndTimeCtrl.MoveWindow(rect);
+
+		rect.top = 5;
+		rect.bottom = rect.top + 10;
+		m_WndTimeRangeSelection.MoveWindow(rect);
+		m_WndTimeRangeSelection.SetRange(0.25, 0.75);
 	}
 }
 
