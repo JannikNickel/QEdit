@@ -235,6 +235,7 @@
     <ClInclude Include="src\CTimeRangeSelection.h" />
     <ClInclude Include="src\HighResolutionTimer.h" />
     <ClInclude Include="src\usermsg.h" />
+    <ClInclude Include="src\VideoHandle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CConvertDialog.cpp" />

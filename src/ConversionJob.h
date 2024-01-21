@@ -2,6 +2,8 @@
 #include "VideoHandle.h"
 #include <functional>
 #include <thread>
+#include <string>
+#include <optional>
 
 class ConversionJob
 {
@@ -19,4 +21,5 @@ protected:
 	std::thread worker;
 
 	void Convert();
+	std::optional<std::string> GetTempFilePath();
 };

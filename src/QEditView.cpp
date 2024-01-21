@@ -70,6 +70,8 @@ void CQEditView::OnDraw(CDC* cDC)
 		cDC->TextOutW((width - strSize.cx) / 2, (height - strSize.cy) / 2, str);
 
 		cDC->SelectObject(oldFont);
+
+		pDoc->SetVideoFile("D://Desktop/2023-10-13 20-32-39.mp4");
 	}
 	else
 	{
