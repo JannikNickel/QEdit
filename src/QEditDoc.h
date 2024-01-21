@@ -1,6 +1,7 @@
 #pragma once
 #include <tuple>
 #include <vector>
+#include "VideoHandle.h"
 extern "C"
 {
 	#include "libavformat/avformat.h"
@@ -23,6 +24,7 @@ public:
 	virtual BOOL OnNewDocument();
 
 	bool HasVideo() const;
+	VideoHandle* GetVideoHandle() const;
 	CString* FilePath() const;
 
 	std::tuple<int, int> VideoResolution() const;
@@ -39,10 +41,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	CString* filePath = nullptr;
-	AVFormatContext* fContext = nullptr;
-	AVStream* vidStream = nullptr;
-	AVCodecContext* codecContext = nullptr;
+	VideoHandle* vidHandle = nullptr;
 	std::vector<int64_t> iFrames = {};
 	std::vector<FrameData> frames = {};
 	std::tuple<int64_t, int64_t> loadedFrameRange = { 0, 0 };

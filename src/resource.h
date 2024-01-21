@@ -27,6 +27,7 @@
 #define IDB_PROPERTIES_HC               184
 #define IDS_EDIT_MENU                   306
 #define IDD_MEDIACTRL                   312
+#define IDD_CONVERTPROGRESS             313
 #define IDC_MCTRL_BTN_PLAY              1000
 #define IDC_MCTRL_TEXT_FRAME            1001
 #define IDC_MCTRL_TIMELINE_PROGRESS     1002
@@ -34,6 +35,7 @@
 #define IDC_MCTRL_BTN_NEXT              1004
 #define IDC_MCTRL_BTN_PREV              1005
 #define IDC_MCTRL_RANGE_SELECTION       1006
+#define IDC_CONVERT_PROGRESS            1007
 #define ID_FILE_SETTINGS                32771
 #define ID_CONVERT                      32772
 #define ID_VIEW_PROPERTIES              32773
@@ -43,9 +45,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        313
+#define _APS_NEXT_RESOURCE_VALUE        314
 #define _APS_NEXT_COMMAND_VALUE         32774
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

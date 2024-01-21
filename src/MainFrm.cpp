@@ -4,6 +4,8 @@
 #include "QEdit.h"
 #include "MainFrm.h"
 #include "QEditDoc.h"
+#include "CConvertDialog.h"
+#include "ConversionJob.h"
 
 #include "usermsg.h"
 
@@ -158,16 +160,12 @@ void CMainFrame::OnMediaCtrlChanged()
 void CMainFrame::OnVideoLoaded()
 {
 	UpdateWindowVisibility();
-	/*if(CMenu* menu = m_wndMenuBar.GetMenu())
-	{
-		menu->EnableMenuItem(ID_CONVERT, IsVideoLoaded());
-	}*/
 	for(size_t i = 0; i < m_wndMenuBar.GetCount(); i++)
 	{
 		if(m_wndMenuBar.GetItemID(i) == ID_CONVERT)
 		{
 			CMFCToolBarButton* button = m_wndMenuBar.GetButton(i);
-			button->EnableWindow(/*IsVideoLoaded()*/SW_SHOW);
+			button->EnableWindow(IsVideoLoaded() ? SW_SHOW : SW_HIDE);
 			break;
 		}
 	}
@@ -215,5 +213,42 @@ bool CMainFrame::IsVideoLoaded()
 
 void CMainFrame::OnConvert()
 {
-	AfxMessageBox(_T("TODO"));
+	if(m_wndMediaCtrl.GetSafeHwnd())
+	{
+		m_wndMediaCtrl.StopPlayback();
+	}
+
+	CString filePath;
+	CString filter = _T("Video Files (*.mp4)|*.mp4||");
+	CFileDialog dlg = CFileDialog(FALSE, _T(".mp4"), _T(""),  OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
+	if(dlg.DoModal() == IDOK)
+	{
+		filePath = dlg.GetPathName();
+
+		CConvertDialog convertDlg;
+		ConversionJob job = ConversionJob(static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle(), filePath, [&convertDlg](float progress, const TCHAR* error)
+		{
+			if(HWND hwnd = convertDlg.GetSafeHwnd())
+			{
+				if(error != nullptr)
+				{
+					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(false), 0);
+					AfxMessageBox(error, MB_ICONERROR);
+				}
+				else if(progress >= 1.0f)
+				{
+					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(true), 0);
+				}
+				else
+				{
+					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_PROGRESS, reinterpret_cast<WPARAM&>(progress), 0);					
+				}
+			}
+		});
+
+		if(convertDlg.DoModal() == IDOK)
+		{
+			ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
+		}
+	}
 }

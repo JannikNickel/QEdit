@@ -60,6 +60,12 @@
     <ClInclude Include="src\CTimeRangeSelection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\CConvertDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConversionJob.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src/QEdit.cpp">
@@ -87,6 +93,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\CTimeRangeSelection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CConvertDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConversionJob.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VideoHandle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -13,6 +13,7 @@ public:
 	double CurrentTime() const;
 	void InitVideoInfo(double totalTime, int totalFrames, double fps);
 	void Reset();
+	void StopPlayback();
 
 protected:
 	CTimeCtrlBar m_wndTimeCtrl;

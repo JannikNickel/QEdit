@@ -18,6 +18,7 @@ CQEditDoc::CQEditDoc() noexcept
 
 CQEditDoc::~CQEditDoc()
 {
+	delete vidHandle;
 	DiscardLoadedFrames();
 }
 
@@ -33,34 +34,39 @@ BOOL CQEditDoc::OnNewDocument()
 
 bool CQEditDoc::HasVideo() const
 {
-	return filePath != nullptr;
+	return vidHandle != nullptr;
+}
+
+VideoHandle* CQEditDoc::GetVideoHandle() const
+{
+	return vidHandle;
 }
 
 CString* CQEditDoc::FilePath() const
 {
-	return filePath;
+	return HasVideo() ? vidHandle->Path() : nullptr;
 }
 
 std::tuple<int, int> CQEditDoc::VideoResolution() const
 {
-	return vidStream != nullptr
-		? std::make_tuple(vidStream->codecpar->width, vidStream->codecpar->height)
+	return HasVideo()
+		? std::make_tuple(vidHandle->Stream()->codecpar->width, vidHandle->Stream()->codecpar->height)
 		: std::make_tuple(0, 0);
 }
 
 double CQEditDoc::Duration() const
 {
-	return vidStream != nullptr ? vidStream->duration * av_q2d(vidStream->time_base) : 0.0;
+	return HasVideo() ? vidHandle->Stream()->duration * av_q2d(vidHandle->Stream()->time_base) : 0.0;
 }
 
 int CQEditDoc::FrameCount() const
 {
-	return vidStream != nullptr ? static_cast<int>(av_q2d(vidStream->avg_frame_rate) * Duration()) : 0;
+	return HasVideo() ? static_cast<int>(av_q2d(vidHandle->Stream()->avg_frame_rate) * Duration()) : 0;
 }
 
 double CQEditDoc::AvgFps() const
 {
-	return vidStream != nullptr ? av_q2d(vidStream->avg_frame_rate) : 0.0;
+	return HasVideo() ? av_q2d(vidHandle->Stream()->avg_frame_rate) : 0.0;
 }
 
 bool CQEditDoc::SetVideoFile(const char* path)
@@ -76,7 +82,7 @@ bool CQEditDoc::SetVideoFile(const char* path)
 
 bool CQEditDoc::GetVideoFrame(double time, int width, int height, CBitmap* bitmap)
 {
-	int64_t timestamp = static_cast<int64_t>(time / av_q2d(vidStream->time_base));
+	int64_t timestamp = static_cast<int64_t>(time / av_q2d(vidHandle->Stream()->time_base));
 	auto [loadedMin, loadedMax] = loadedFrameRange;
 	if(frames.size() == 0 || (loadedMin > timestamp || timestamp > loadedMax))
 	{
@@ -110,7 +116,7 @@ void CQEditDoc::DiscardLoadedFrames()
 
 std::tuple<int64_t, int64_t> CQEditDoc::LoadFrameRange(int64_t lIFrame, int64_t timestamp, bool seek, bool full)
 {
-	if(seek && av_seek_frame(fContext, vidStream->index, timestamp, AVSEEK_FLAG_BACKWARD) < 0)
+	if(seek && av_seek_frame(vidHandle->Format(), vidHandle->Stream()->index, timestamp, AVSEEK_FLAG_BACKWARD) < 0)
 	{
 		return { 0, 0 };
 	}
@@ -121,9 +127,9 @@ std::tuple<int64_t, int64_t> CQEditDoc::LoadFrameRange(int64_t lIFrame, int64_t 
 	bool firstFrm = true;
 	int64_t start = !seek ? lIFrame : INT64_MAX;
 	int64_t end = 0;
-	while(av_read_frame(fContext, packet) >= 0)
+	while(av_read_frame(vidHandle->Format(), packet) >= 0)
 	{
-		if(packet->stream_index == vidStream->index)
+		if(packet->stream_index == vidHandle->Stream()->index)
 		{
 			if(!firstPkt && full && packet->flags & AV_PKT_FLAG_KEY)
 			{
@@ -131,7 +137,7 @@ std::tuple<int64_t, int64_t> CQEditDoc::LoadFrameRange(int64_t lIFrame, int64_t 
 			}
 			firstPkt = false;
 
-			if(avcodec_send_packet(codecContext, packet) < 0)
+			if(avcodec_send_packet(vidHandle->Codec(), packet) < 0)
 			{
 				break;
 			}
@@ -141,7 +147,7 @@ std::tuple<int64_t, int64_t> CQEditDoc::LoadFrameRange(int64_t lIFrame, int64_t 
 			AVFrame* frame = av_frame_alloc();
 			while(res >= 0)
 			{
-				res = avcodec_receive_frame(codecContext, frame);
+				res = avcodec_receive_frame(vidHandle->Codec(), frame);
 				if(res < 0)
 				{
 					error = res != AVERROR(EAGAIN) && res != AVERROR_EOF;
@@ -180,86 +186,28 @@ bool CQEditDoc::IsInIFrameRange(int64_t lIFrame, int64_t timestamp)
 
 bool CQEditDoc::OpenVideoStream(const char* path)
 {
-	AVFormatContext* fContext = NULL;
-	int resp = avformat_open_input(&fContext, path, NULL, NULL);
-	if(resp < 0)
-	{
-		avformat_close_input(&fContext);
-		return false;
-	}
-
-	resp = avformat_find_stream_info(fContext, NULL);
-	if(resp < 0)
-	{
-		avformat_close_input(&fContext);
-		return false;
-	}
-
-	AVStream* vidStream = nullptr;
-	for(size_t i = 0; i < fContext->nb_streams; i++)
-	{
-		if(fContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
-		{
-			vidStream = fContext->streams[i];
-			break;
-		}
-	}
-	if(vidStream == nullptr)
-	{
-		avformat_close_input(&fContext);
-		return false;
-	}
-
-	const AVCodec* codec = avcodec_find_decoder(vidStream->codecpar->codec_id);
-	if(codec == nullptr)
-	{
-		avformat_close_input(&fContext);
-		return false;
-	}
-
-	AVCodecContext* codecContext = avcodec_alloc_context3(codec);
-	if(codecContext == nullptr)
-	{
-		avformat_close_input(&fContext);
-		avcodec_free_context(&codecContext);
-		return false;
-	}
-
-	if(avcodec_parameters_to_context(codecContext, vidStream->codecpar) < 0)
-	{
-		avformat_close_input(&fContext);
-		avcodec_free_context(&codecContext);
-		return false;
-	}
-
-	if(avcodec_open2(codecContext, codec, NULL) < 0)
-	{
-		avformat_close_input(&fContext);
-		avcodec_free_context(&codecContext);
-		return false;
-	}
-
 	FreeResources();
-	this->filePath = new CString(path);
-	this->fContext = fContext;
-	this->vidStream = vidStream;
-	this->codecContext = codecContext;
+	this->vidHandle = VideoHandle::FromFile(path);
+	if(this->vidHandle == nullptr)
+	{
+		return false;
+	}
 	this->iFrames = FindIFrames();
 	return true;
 }
 
 std::vector<int64_t> CQEditDoc::FindIFrames()
 {
-	if(av_seek_frame(fContext, vidStream->index, 0, AVSEEK_FLAG_BACKWARD) < 0)
+	if(av_seek_frame(vidHandle->Format(), vidHandle->Stream()->index, 0, AVSEEK_FLAG_BACKWARD) < 0)
 	{
 		return { 0, 0 };
 	}
 
 	std::vector<int64_t> frames = {};
 	AVPacket* packet = av_packet_alloc();
-	while(av_read_frame(fContext, packet) >= 0)
+	while(av_read_frame(vidHandle->Format(), packet) >= 0)
 	{
-		if(packet->stream_index == vidStream->index)
+		if(packet->stream_index == vidHandle->Stream()->index)
 		{
 			if(packet->flags & AV_PKT_FLAG_KEY)
 			{
@@ -316,9 +264,5 @@ bool CQEditDoc::WriteFrameToBitmap(const AVFrame* frame, int width, int height, 
 
 void CQEditDoc::FreeResources()
 {
-	delete filePath;
-	filePath = nullptr;
-	avformat_close_input(&fContext);
-	avcodec_free_context(&codecContext);
-	//vidStream is part of codecContext
+	delete vidHandle;
 }

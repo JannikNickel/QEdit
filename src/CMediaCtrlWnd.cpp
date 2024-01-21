@@ -50,6 +50,14 @@ void CMediaCtrlWnd::Reset()
 	Invalidate();
 }
 
+void CMediaCtrlWnd::StopPlayback()
+{
+	if(isPlaying)
+	{
+		OnPlayButtonClicked();
+	}
+}
+
 BOOL CMediaCtrlWnd::OnInitDialog()
 {
 	if(!CDialogEx::OnInitDialog())

@@ -219,6 +219,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\CConvertDialog.h" />
     <ClInclude Include="src/framework.h" />
     <ClInclude Include="src/MainFrm.h" />
     <ClInclude Include="src/pch.h" />
@@ -229,12 +230,14 @@
     <ClInclude Include="src/resource.h" />
     <ClInclude Include="src/targetver.h" />
     <ClInclude Include="src\CMediaCtrlWnd.h" />
+    <ClInclude Include="src\ConversionJob.h" />
     <ClInclude Include="src\CTimeCtrlBar.h" />
     <ClInclude Include="src\CTimeRangeSelection.h" />
     <ClInclude Include="src\HighResolutionTimer.h" />
     <ClInclude Include="src\usermsg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\CConvertDialog.cpp" />
     <ClCompile Include="src/MainFrm.cpp" />
     <ClCompile Include="src/pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -247,8 +250,10 @@
     <ClCompile Include="src/QEditDoc.cpp" />
     <ClCompile Include="src/QEditView.cpp" />
     <ClCompile Include="src\CMediaCtrlWnd.cpp" />
+    <ClCompile Include="src\ConversionJob.cpp" />
     <ClCompile Include="src\CTimeCtrlBar.cpp" />
     <ClCompile Include="src\CTimeRangeSelection.cpp" />
+    <ClCompile Include="src\VideoHandle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src/QEdit.rc" />
