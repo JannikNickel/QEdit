@@ -31,6 +31,8 @@ void ConversionJob::Stop()
 
 void ConversionJob::Convert()
 {
+	progressCallback(0.0f, nullptr);
+
 	std::string outPath = GetTempFilePath().value_or("");
 	if(outPath.empty())
 	{
@@ -44,31 +46,49 @@ void ConversionJob::Convert()
 	AVCodecContext* inputCodecCtx = source->Codec();
 	AVFormatContext* inputFmtCtx = source->Format();
 
-	//Open and prepare output codec
 	AVFormatContext* outFmtCtx = nullptr;
+	AVCodecContext* outCodecCtx = nullptr;
+	const AVOutputFormat* outFmt = nullptr;
+	const AVCodec* outCodec = nullptr;
+	AVStream* outStream = nullptr;
+	const AVPixelFormat* pixFmt = nullptr;
+	SwsContext* swsCtx = nullptr;
+	AVFrame* frame = nullptr;
+	AVFrame* scaledFrame = nullptr;
+	AVPacket* pkt = nullptr;
+
+	int64_t totalFrames = 0;
+	int64_t currFrame = 0;
+
+	const TCHAR* error = nullptr;
+
 	avformat_alloc_output_context2(&outFmtCtx, nullptr, "mp4", outPath.c_str());
 	if(outFmtCtx == nullptr)
 	{
-		//ERROR
+		error = _T("Could not alloc output format context!");
+		goto CLEANUP;
 	}
-	const AVOutputFormat* outFmt = outFmtCtx->oformat;
+	outFmt = outFmtCtx->oformat;
 
-	const AVCodec* outCodec = avcodec_find_encoder(AV_CODEC_ID_H264);
+	outCodec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if(outCodec == nullptr)
 	{
-		//ERROR
+		error = _T("Could not find codec!");
+		goto CLEANUP;
 	}
 
-	AVStream* outStream = avformat_new_stream(outFmtCtx, NULL);
+	outStream = avformat_new_stream(outFmtCtx, NULL);
 	if(outStream == nullptr)
 	{
-		//ERROR
+		error = _T("Could not create new stream!");
+		goto CLEANUP;
 	}
 
-	AVCodecContext* outCodecCtx = avcodec_alloc_context3(outCodec);
+	outCodecCtx = avcodec_alloc_context3(outCodec);
 	if(outCodecCtx == nullptr)
 	{
-		//ERROR
+		error = _T("Could not alloc output codec context!");
+		goto CLEANUP;
 	}
 
 	outCodecCtx->codec_id = outCodec->id;
@@ -86,7 +106,7 @@ void ConversionJob::Convert()
 
 	//Use pixel format from input stream if possible
 	outCodecCtx->pix_fmt = outCodec->pix_fmts[0];
-	const AVPixelFormat* pixFmt = outCodec->pix_fmts;
+	pixFmt = outCodec->pix_fmts;
 	while(*pixFmt != -1)
 	{
 		if(*pixFmt == inputCodecCtx->pix_fmt)
@@ -99,46 +119,47 @@ void ConversionJob::Convert()
 
 	if(avcodec_parameters_from_context(outStream->codecpar, outCodecCtx) < 0)
 	{
-		//ERROR
+		error = _T("Failed to get params from context!");
+		goto CLEANUP;
 	}
 	if(avcodec_open2(outCodecCtx, outCodec, nullptr) < 0)
 	{
-		//ERROR
+		error = _T("Failed to open codec!");
+		goto CLEANUP;
 	}
 
-	//Init scaling
-	SwsContext* swsCtx = sws_getContext(inputCodecCtx->width, inputCodecCtx->height, inputCodecCtx->pix_fmt, outCodecCtx->width, outCodecCtx->height, outCodecCtx->pix_fmt, SWS_BILINEAR, nullptr, nullptr, nullptr);
+	swsCtx = sws_getContext(inputCodecCtx->width, inputCodecCtx->height, inputCodecCtx->pix_fmt, outCodecCtx->width, outCodecCtx->height, outCodecCtx->pix_fmt, SWS_BILINEAR, nullptr, nullptr, nullptr);
 	if(swsCtx == nullptr)
 	{
-		//ERROR
+		error = _T("Failed to create scaling context!");
+		goto CLEANUP;
 	}
 
-	//Open file
 	if(avio_open(&outFmtCtx->pb, outPath.c_str(), AVIO_FLAG_WRITE) < 0)
 	{
-		//ERROR
+		error = _T("Could not open output file!");
+		goto CLEANUP;
 	}
 
-	//Write header
 	if(avformat_write_header(outFmtCtx, nullptr) < 0)
 	{
-		//ERROR
+		error = _T("Could not write file header!");
+		goto CLEANUP;
 	}
 
-	//Convert and write frames
-	AVFrame* frame = av_frame_alloc();
-	AVFrame* scaledFrame = av_frame_alloc();
-	AVPacket* pkt = av_packet_alloc();
+	frame = av_frame_alloc();
+	scaledFrame = av_frame_alloc();
+	pkt = av_packet_alloc();
 	scaledFrame->format = outCodecCtx->pix_fmt;
 	scaledFrame->width = outCodecCtx->width;
 	scaledFrame->height = outCodecCtx->height;
 	if(av_frame_get_buffer(scaledFrame, 0) < 0)
 	{
-		//ERROR
+		error = _T("Could not alloc frame buffer!");
+		goto CLEANUP;
 	}
 
-	int64_t total = inputStream->nb_frames;
-	int64_t fi = 0;
+	totalFrames = inputStream->nb_frames;
 	while(av_read_frame(inputFmtCtx, pkt) >= 0 && isRunning)
 	{
 		if(pkt->stream_index != inputStream->index)
@@ -151,9 +172,10 @@ void ConversionJob::Convert()
 		int64_t duration = av_rescale_q(pkt->duration, inputStream->time_base, outStream->time_base);
 		pkt->pos = -1;
 
-		if(avcodec_send_packet(inputCodecCtx, pkt) == 0)
+		if(avcodec_send_packet(inputCodecCtx, pkt) < 0)
 		{
-			//ERROR
+			error = _T("Failed to send packet to decoder!");
+			goto CLEANUP;
 		}
 
 		while(avcodec_receive_frame(inputCodecCtx, frame) == 0)
@@ -161,7 +183,8 @@ void ConversionJob::Convert()
 			sws_scale(swsCtx, frame->data, frame->linesize, 0, inputCodecCtx->height, scaledFrame->data, scaledFrame->linesize);			
 			if(avcodec_send_frame(outCodecCtx, scaledFrame) < 0)
 			{
-				//ERROR
+				error = _T("Failed to send frame to encoder!");
+				goto CLEANUP;
 			}
 			while(avcodec_receive_packet(outCodecCtx, pkt) == 0)
 			{
@@ -171,35 +194,38 @@ void ConversionJob::Convert()
 
 				if(av_interleaved_write_frame(outFmtCtx, pkt) < 0)
 				{
-					//ERROR
+					error = _T("Could not write frame!");
+					goto CLEANUP;
 				}
 			}
 		}
 
-		if(++fi % 50 == 0)
+		if(++currFrame % 50 == 0)
 		{
-			progressCallback(static_cast<float>(fi / static_cast<double>(total)), nullptr);
+			progressCallback(static_cast<float>(currFrame / static_cast<double>(totalFrames)), nullptr);
 		}
 	}
 
-	bool error = false;
-	ERR:
+	if(av_write_trailer(outFmtCtx) < 0)
+	{
+		error = _T("Could not write file trailer!");
+		goto CLEANUP;
+	}
 
-
+	CLEANUP:
 	av_frame_free(&frame);
 	av_frame_free(&scaledFrame);
 	av_packet_free(&pkt);
-
-	//Write trailer
-	av_write_trailer(outFmtCtx);
-
-	//Cleanup
-	avio_close(outFmtCtx->pb);
-	avcodec_free_context(&outCodecCtx);
+	if(outFmtCtx != nullptr)
+	{
+		avio_close(outFmtCtx->pb);
+	}
 	avformat_free_context(outFmtCtx);
+	avcodec_close(outCodecCtx);
+	avcodec_free_context(&outCodecCtx);
 	sws_freeContext(swsCtx);
 
-	progressCallback(1.0f, nullptr);
+	progressCallback(1.0f, error);
 }
 
 std::optional<std::string> ConversionJob::GetTempFilePath()

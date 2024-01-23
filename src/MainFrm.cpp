@@ -226,14 +226,20 @@ void CMainFrame::OnConvert()
 		filePath = dlg.GetPathName();
 
 		CConvertDialog convertDlg;
-		ConversionJob job = ConversionJob(static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle(), filePath, [&convertDlg](float progress, const TCHAR* error)
+		ConversionJob job = ConversionJob(static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle(), filePath, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
 		{
+			if(firstCallback)
+			{
+				WaitForSingleObject(convertDlg.dialogOpened, INFINITE);
+				firstCallback = false;
+			}
+
 			if(HWND hwnd = convertDlg.GetSafeHwnd())
 			{
 				if(error != nullptr)
 				{
-					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(false), 0);
 					AfxMessageBox(error, MB_ICONERROR);
+					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(false), 0);
 				}
 				else if(progress >= 1.0f)
 				{

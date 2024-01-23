@@ -8,6 +8,8 @@
 IMPLEMENT_DYNAMIC(CConvertDialog, CDialogEx)
 
 BEGIN_MESSAGE_MAP(CConvertDialog, CDialogEx)
+	ON_WM_CLOSE()
+	ON_WM_WINDOWPOSCHANGED()
 	ON_MESSAGE(WM_CUSTOM_CONVERSION_PROGRESS, &CConvertDialog::OnConversionProgress)
 	ON_MESSAGE(WM_CUSTOM_CONVERSION_COMPLETED, &CConvertDialog::OnConversionCompleted)
 END_MESSAGE_MAP()
@@ -15,16 +17,6 @@ END_MESSAGE_MAP()
 CConvertDialog::CConvertDialog(CWnd* pParent) : CDialogEx(IDD_CONVERTPROGRESS, pParent)
 {
 	
-}
-
-BOOL CConvertDialog::OnInitDialog()
-{
-	if(!CDialogEx::OnInitDialog())
-	{
-		return FALSE;
-	}
-	timerId = SetTimer(ID_TIMER_CONVERT_DLG, 100, NULL);
-	return TRUE;
 }
 
 void CConvertDialog::UpdateProgress(float progress)
@@ -36,7 +28,25 @@ void CConvertDialog::UpdateProgress(float progress)
 		header.Format(_T("Converting... (%.1f%%)"), progress);
 		this->SetWindowText(header);
 		pCtrl->SetPos(static_cast<int>(round(progress)));
-		Invalidate();
+	}
+}
+
+void CConvertDialog::OnOpen()
+{
+	dialogOpened.SetEvent();
+}
+
+void CConvertDialog::OnClose()
+{
+	opened = false;
+}
+
+void CConvertDialog::OnWindowPosChanged(WINDOWPOS* wndPos)
+{
+	if((wndPos->flags & SWP_SHOWWINDOW) && !opened)
+	{
+		opened = true;
+		OnOpen();
 	}
 }
 
