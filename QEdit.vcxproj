@@ -234,6 +234,7 @@
     <ClInclude Include="src\CTimeCtrlBar.h" />
     <ClInclude Include="src\CTimeRangeSelection.h" />
     <ClInclude Include="src\HighResolutionTimer.h" />
+    <ClInclude Include="src\OutputSettings.h" />
     <ClInclude Include="src\usermsg.h" />
     <ClInclude Include="src\VideoHandle.h" />
   </ItemGroup>

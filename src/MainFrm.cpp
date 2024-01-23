@@ -23,6 +23,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_MESSAGE(WM_CUSTOM_VIEW_SIZE_CHANGED, &CMainFrame::OnViewSizeChanged)
 	ON_COMMAND(ID_CUSTOM_MEDIA_CTRL_CHANGED, &CMainFrame::OnMediaCtrlChanged)
 	ON_COMMAND(ID_CUSTOM_VIDEO_LOADED, &CMainFrame::OnVideoLoaded)
+	ON_UPDATE_COMMAND_UI(ID_CONVERT, &CMainFrame::UpdateConvertButton)
 	ON_COMMAND(ID_CONVERT, &CMainFrame::OnConvert)
 END_MESSAGE_MAP()
 
@@ -31,14 +32,14 @@ CMainFrame::CMainFrame() noexcept
 
 }
 
-CMediaCtrlWnd* CMainFrame::GetMediaCtrl()
-{
-	return &m_wndMediaCtrl;
-}
-
 CMainFrame::~CMainFrame()
 {
 
+}
+
+CMediaCtrlWnd* CMainFrame::GetMediaCtrl()
+{
+	return &m_wndMediaCtrl;
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -77,7 +78,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	UpdateWindowVisibility();
 
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
-
 	return 0;
 }
 
@@ -87,53 +87,6 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 	UpdateMediaCtrlLayout();
 }
 
-BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
-{
-	return CFrameWndEx::PreCreateWindow(cs);
-}
-
-BOOL CMainFrame::CreateDockingWindows()
-{
-	BOOL bNameValid;
-	CString strPropertiesWnd;
-	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
-	ASSERT(bNameValid);
-	if(!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Failed to create properties window\n");
-		return FALSE;
-	}
-
-	SetDockingWindowIcons(theApp.m_bHiColorIcons);
-	return TRUE;
-}
-
-void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
-{
-	HICON hPropertiesBarIcon = (HICON)::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
-}
-
-// CMainFrame diagnostics
-
-#ifdef _DEBUG
-void CMainFrame::AssertValid() const
-{
-	CFrameWndEx::AssertValid();
-}
-
-void CMainFrame::Dump(CDumpContext& dc) const
-{
-	CFrameWndEx::Dump(dc);
-}
-#endif //_DEBUG
-
-BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext)
-{
-	return CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext);
-}
-
-//Event Handler
 void CMainFrame::OnViewProperties()
 {
 	BOOL vis = m_wndProperties.IsWindowVisible();
@@ -160,15 +113,38 @@ void CMainFrame::OnMediaCtrlChanged()
 void CMainFrame::OnVideoLoaded()
 {
 	UpdateWindowVisibility();
-	for(size_t i = 0; i < m_wndMenuBar.GetCount(); i++)
+}
+
+void CMainFrame::UpdateConvertButton(CCmdUI* pCmdUI)
+{
+	pCmdUI->Enable(IsVideoLoaded());
+}
+
+void CMainFrame::OnConvert()
+{
+	ConvertCurrent();
+}
+
+BOOL CMainFrame::CreateDockingWindows()
+{
+	BOOL bNameValid;
+	CString strPropertiesWnd;
+	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
+	ASSERT(bNameValid);
+	if(!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{
-		if(m_wndMenuBar.GetItemID(i) == ID_CONVERT)
-		{
-			CMFCToolBarButton* button = m_wndMenuBar.GetButton(i);
-			button->EnableWindow(IsVideoLoaded() ? SW_SHOW : SW_HIDE);
-			break;
-		}
+		TRACE0("Failed to create properties window\n");
+		return FALSE;
 	}
+
+	SetDockingWindowIcons(theApp.m_bHiColorIcons);
+	return TRUE;
+}
+
+void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
+{
+	HICON hPropertiesBarIcon = (HICON)::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
 }
 
 void CMainFrame::UpdateMediaCtrlLayout()
@@ -211,7 +187,7 @@ bool CMainFrame::IsVideoLoaded()
 	return doc != nullptr && doc->HasVideo();
 }
 
-void CMainFrame::OnConvert()
+void CMainFrame::ConvertCurrent()
 {
 	if(m_wndMediaCtrl.GetSafeHwnd())
 	{
@@ -220,7 +196,7 @@ void CMainFrame::OnConvert()
 
 	CString filePath;
 	CString filter = _T("Video Files (*.mp4)|*.mp4||");
-	CFileDialog dlg = CFileDialog(FALSE, _T(".mp4"), _T(""),  OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
+	CFileDialog dlg = CFileDialog(FALSE, _T(".mp4"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
 	if(dlg.DoModal() == IDOK)
 	{
 		filePath = dlg.GetPathName();
@@ -247,7 +223,7 @@ void CMainFrame::OnConvert()
 				}
 				else
 				{
-					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_PROGRESS, reinterpret_cast<WPARAM&>(progress), 0);					
+					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_PROGRESS, reinterpret_cast<WPARAM&>(progress), 0);
 				}
 			}
 		});
