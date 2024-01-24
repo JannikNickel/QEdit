@@ -72,6 +72,9 @@
     <ClInclude Include="src\OutputSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\CMFCRangedPropertyGridProperty.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src/QEdit.cpp">

@@ -202,7 +202,8 @@ void CMainFrame::ConvertCurrent()
 		filePath = dlg.GetPathName();
 
 		CConvertDialog convertDlg;
-		ConversionJob job = ConversionJob(static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle(), filePath, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
+		OutputSettings settings = m_wndProperties.CurrentSettings();
+		ConversionJob job = ConversionJob(static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle(), filePath, settings, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
 		{
 			if(firstCallback)
 			{

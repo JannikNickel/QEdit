@@ -8,8 +8,8 @@ extern "C"
 	#include "libavutil/imgutils.h"
 }
 
-ConversionJob::ConversionJob(VideoHandle* source, CString destination, std::function<void(float, const TCHAR*)> progressCallback)
-	: source(source), destination(destination), progressCallback(progressCallback)
+ConversionJob::ConversionJob(VideoHandle* source, CString destination, const OutputSettings& settings, std::function<void(float, const TCHAR*)> progressCallback)
+	: source(source), destination(destination), settings(settings), progressCallback(progressCallback)
 {
 	isRunning = true;
 	worker = std::thread(&ConversionJob::Convert, this);
