@@ -27,7 +27,9 @@ void CConvertDialog::UpdateProgress(float progress)
 		CString header;
 		header.Format(_T("Converting... (%.1f%%)"), progress);
 		this->SetWindowText(header);
-		pCtrl->SetPos(static_cast<int>(round(progress)));
+		int p = static_cast<int>(round(progress));
+		pCtrl->SetPos(p + 1);
+		pCtrl->SetPos(p);
 	}
 }
 

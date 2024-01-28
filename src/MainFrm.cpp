@@ -197,9 +197,9 @@ void CMainFrame::ConvertCurrent()
 	CString filePath;
 	CString filter = _T("Video Files (*.mp4)|*.mp4||");
 	CFileDialog dlg = CFileDialog(FALSE, _T(".mp4"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
-	if(dlg.DoModal() == IDOK)
+	if(/*dlg.DoModal() == IDOK*/true)
 	{
-		filePath = dlg.GetPathName();
+		filePath = "";//dlg.GetPathName();
 
 		CConvertDialog convertDlg;
 		OutputSettings settings = m_wndProperties.CurrentSettings();
@@ -231,7 +231,7 @@ void CMainFrame::ConvertCurrent()
 
 		if(convertDlg.DoModal() == IDOK)
 		{
-			ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
+			//ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
 		}
 	}
 }

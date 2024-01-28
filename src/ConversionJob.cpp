@@ -6,6 +6,7 @@ extern "C"
 	#include "libavcodec/avcodec.h"
 	#include "libswscale/swscale.h"
 	#include "libavutil/imgutils.h"
+	#include "libavutil/opt.h"
 }
 
 ConversionJob::ConversionJob(VideoHandle* source, CString destination, const OutputSettings& settings, std::function<void(float, const TCHAR*)> progressCallback)
@@ -56,11 +57,19 @@ void ConversionJob::Convert()
 	AVFrame* frame = nullptr;
 	AVFrame* scaledFrame = nullptr;
 	AVPacket* pkt = nullptr;
+	AVPacket* outPkt = nullptr;
+	AVRational inpFps = { 0 };
 
 	int64_t totalFrames = 0;
 	int64_t currFrame = 0;
 
 	const TCHAR* error = nullptr;
+
+	if(av_seek_frame(inputFmtCtx, inputStream->index, 0, AVSEEK_FLAG_BACKWARD) < 0)
+	{
+		error = _T("Could not seek to beginning!");
+		goto CLEANUP;
+	}
 
 	avformat_alloc_output_context2(&outFmtCtx, nullptr, "mp4", outPath.c_str());
 	if(outFmtCtx == nullptr)
@@ -91,16 +100,15 @@ void ConversionJob::Convert()
 		goto CLEANUP;
 	}
 
-	outCodecCtx->codec_id = outCodec->id;
-	outCodecCtx->bit_rate = 5000 * 1024;
-	outCodecCtx->rc_min_rate = outCodecCtx->bit_rate;
-	outCodecCtx->rc_max_rate = outCodecCtx->bit_rate;
-	outCodecCtx->bit_rate_tolerance = 0;
-	outCodecCtx->rc_buffer_size = outCodecCtx->bit_rate;
-	outCodecCtx->width = 1920;
-	outCodecCtx->height = 1080;
-	outCodecCtx->time_base = AVRational { 1, 60 };
-	outCodecCtx->framerate = AVRational { 60, 1 };
+	inpFps = av_guess_frame_rate(inputFmtCtx, inputStream, NULL);
+	outCodecCtx->width = inputCodecCtx->width;
+	outCodecCtx->height = inputCodecCtx->height;
+	outCodecCtx->sample_aspect_ratio = inputCodecCtx->sample_aspect_ratio;
+	outCodecCtx->bit_rate = 15 * 1000 * 1000;
+	outCodecCtx->rc_buffer_size = outCodecCtx->bit_rate * 2;
+	outCodecCtx->rc_min_rate = outCodecCtx->bit_rate * 2;
+	outCodecCtx->rc_max_rate = outCodecCtx->bit_rate * 2.5;
+
 	outCodecCtx->gop_size = inputCodecCtx->gop_size;
 	outCodecCtx->max_b_frames = inputCodecCtx->max_b_frames;
 
@@ -117,14 +125,18 @@ void ConversionJob::Convert()
 		pixFmt++;
 	}
 
-	if(avcodec_parameters_from_context(outStream->codecpar, outCodecCtx) < 0)
-	{
-		error = _T("Failed to get params from context!");
-		goto CLEANUP;
-	}
+	outCodecCtx->time_base = av_inv_q(inpFps);
+	outStream->time_base = outCodecCtx->time_base;
+
 	if(avcodec_open2(outCodecCtx, outCodec, nullptr) < 0)
 	{
 		error = _T("Failed to open codec!");
+		goto CLEANUP;
+	}
+
+	if(avcodec_parameters_from_context(outStream->codecpar, outCodecCtx))
+	{
+		error = _T("Could not set parameters from context");
 		goto CLEANUP;
 	}
 
@@ -148,8 +160,9 @@ void ConversionJob::Convert()
 	}
 
 	frame = av_frame_alloc();
-	scaledFrame = av_frame_alloc();
 	pkt = av_packet_alloc();
+	outPkt = av_packet_alloc();
+	scaledFrame = av_frame_alloc();
 	scaledFrame->format = outCodecCtx->pix_fmt;
 	scaledFrame->width = outCodecCtx->width;
 	scaledFrame->height = outCodecCtx->height;
@@ -162,48 +175,42 @@ void ConversionJob::Convert()
 	totalFrames = inputStream->nb_frames;
 	while(av_read_frame(inputFmtCtx, pkt) >= 0 && isRunning)
 	{
-		if(pkt->stream_index != inputStream->index)
+		if(pkt->stream_index == inputStream->index)
 		{
-			continue;
-		}
-
-		int64_t pts = av_rescale_q_rnd(pkt->pts, inputStream->time_base, outStream->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
-		int64_t dts = av_rescale_q_rnd(pkt->dts, inputStream->time_base, outStream->time_base, (AVRounding)(AV_ROUND_NEAR_INF | AV_ROUND_PASS_MINMAX));
-		int64_t duration = av_rescale_q(pkt->duration, inputStream->time_base, outStream->time_base);
-		pkt->pos = -1;
-
-		if(avcodec_send_packet(inputCodecCtx, pkt) < 0)
-		{
-			error = _T("Failed to send packet to decoder!");
-			goto CLEANUP;
-		}
-
-		while(avcodec_receive_frame(inputCodecCtx, frame) == 0)
-		{
-			sws_scale(swsCtx, frame->data, frame->linesize, 0, inputCodecCtx->height, scaledFrame->data, scaledFrame->linesize);			
-			if(avcodec_send_frame(outCodecCtx, scaledFrame) < 0)
+			if(avcodec_send_packet(inputCodecCtx, pkt) < 0)
 			{
-				error = _T("Failed to send frame to encoder!");
+				error = _T("Failed to send packet to decoder!");
 				goto CLEANUP;
 			}
-			while(avcodec_receive_packet(outCodecCtx, pkt) == 0)
-			{
-				pkt->pts = pts;
-				pkt->dts = dts;
-				pkt->duration = duration;
 
-				if(av_interleaved_write_frame(outFmtCtx, pkt) < 0)
+			while(avcodec_receive_frame(inputCodecCtx, frame) == 0)
+			{
+				sws_scale(swsCtx, frame->data, frame->linesize, 0, inputCodecCtx->height, scaledFrame->data, scaledFrame->linesize);
+				av_frame_copy_props(scaledFrame, frame);
+				if(avcodec_send_frame(outCodecCtx, scaledFrame) < 0)
 				{
-					error = _T("Could not write frame!");
+					error = _T("Failed to send frame to encoder!");
 					goto CLEANUP;
 				}
+				while(avcodec_receive_packet(outCodecCtx, outPkt) == 0)
+				{
+					outPkt->stream_index = 0;
+					av_packet_rescale_ts(outPkt, inputStream->time_base, outStream->time_base);
+
+					//This can fail, but the video is still fine
+					int writeRes = av_interleaved_write_frame(outFmtCtx, outPkt);
+				}
+
+				av_frame_unref(frame);
+				av_packet_unref(outPkt);
+			}
+
+			if(++currFrame % 50 == 0 || currFrame == totalFrames)
+			{
+				progressCallback(static_cast<float>(currFrame / static_cast<double>(totalFrames)), nullptr);
 			}
 		}
-
-		if(++currFrame % 50 == 0)
-		{
-			progressCallback(static_cast<float>(currFrame / static_cast<double>(totalFrames)), nullptr);
-		}
+		av_packet_unref(pkt);
 	}
 
 	if(av_write_trailer(outFmtCtx) < 0)
@@ -214,8 +221,10 @@ void ConversionJob::Convert()
 
 	CLEANUP:
 	av_frame_free(&frame);
+	av_frame_unref(scaledFrame);
 	av_frame_free(&scaledFrame);
 	av_packet_free(&pkt);
+	av_packet_free(&outPkt);
 	if(outFmtCtx != nullptr)
 	{
 		avio_close(outFmtCtx->pb);
