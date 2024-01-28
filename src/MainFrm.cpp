@@ -4,6 +4,7 @@
 #include "QEdit.h"
 #include "MainFrm.h"
 #include "QEditDoc.h"
+#include "COutputOptionsDialog.h"
 #include "CConvertDialog.h"
 #include "ConversionJob.h"
 
@@ -18,8 +19,6 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_COMMAND(ID_VIEW_PROPERTIES, &CMainFrame::OnViewProperties)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_PROPERTIES, &CMainFrame::OnUpdateViewProperties)
 	ON_MESSAGE(WM_CUSTOM_VIEW_SIZE_CHANGED, &CMainFrame::OnViewSizeChanged)
 	ON_COMMAND(ID_CUSTOM_MEDIA_CTRL_CHANGED, &CMainFrame::OnMediaCtrlChanged)
 	ON_COMMAND(ID_CUSTOM_VIDEO_LOADED, &CMainFrame::OnVideoLoaded)
@@ -57,16 +56,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
 
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
-	CDockingManager::SetDockingMode(DT_SMART);
-	EnableAutoHidePanes(CBRS_ALIGN_ANY);
-
-	if(!CreateDockingWindows())
-	{
-		TRACE0("Failed to create docking windows\n");
-		return -1;
-	}
-	m_wndProperties.EnableDocking(CBRS_ALIGN_RIGHT);
-	DockPane(&m_wndProperties);
 
 	if(!m_wndMediaCtrl.Create(IDD_MEDIACTRL, this))
 	{
@@ -85,18 +74,6 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 {
 	CFrameWndEx::OnSize(nType, cx, cy);
 	UpdateMediaCtrlLayout();
-}
-
-void CMainFrame::OnViewProperties()
-{
-	BOOL vis = m_wndProperties.IsWindowVisible();
-	m_wndProperties.ShowPane(!vis, FALSE, !vis);
-}
-
-void CMainFrame::OnUpdateViewProperties(CCmdUI* pCmdUI)
-{
-	BOOL vis = m_wndProperties.IsWindowVisible();
-	pCmdUI->SetCheck(vis);
 }
 
 LRESULT CMainFrame::OnViewSizeChanged(WPARAM wParam, LPARAM lParam)
@@ -123,28 +100,6 @@ void CMainFrame::UpdateConvertButton(CCmdUI* pCmdUI)
 void CMainFrame::OnConvert()
 {
 	ConvertCurrent();
-}
-
-BOOL CMainFrame::CreateDockingWindows()
-{
-	BOOL bNameValid;
-	CString strPropertiesWnd;
-	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
-	ASSERT(bNameValid);
-	if(!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("Failed to create properties window\n");
-		return FALSE;
-	}
-
-	SetDockingWindowIcons(theApp.m_bHiColorIcons);
-	return TRUE;
-}
-
-void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
-{
-	HICON hPropertiesBarIcon = (HICON)::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
 }
 
 void CMainFrame::UpdateMediaCtrlLayout()
@@ -194,44 +149,49 @@ void CMainFrame::ConvertCurrent()
 		m_wndMediaCtrl.StopPlayback();
 	}
 
-	CString filePath;
-	CString filter = _T("Video Files (*.mp4)|*.mp4||");
-	CFileDialog dlg = CFileDialog(FALSE, _T(".mp4"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
-	if(/*dlg.DoModal() == IDOK*/true)
+	VideoHandle* vidHandle = static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle();
+	COutputOptionsDialog optionsDlg = COutputOptionsDialog(vidHandle, this);
+	if(optionsDlg.DoModal() == IDOK)
 	{
-		filePath = "";//dlg.GetPathName();
-
-		CConvertDialog convertDlg;
-		OutputSettings settings = m_wndProperties.CurrentSettings();
-		ConversionJob job = ConversionJob(static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle(), filePath, settings, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
+		CString filePath;
+		CString filter = _T("Video Files (*.mp4)|*.mp4||");
+		CFileDialog fileDlg = CFileDialog(FALSE, _T(".mp4"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
+		if(fileDlg.DoModal() == IDOK)
 		{
-			if(firstCallback)
-			{
-				WaitForSingleObject(convertDlg.dialogOpened, INFINITE);
-				firstCallback = false;
-			}
+			filePath = fileDlg.GetPathName();
 
-			if(HWND hwnd = convertDlg.GetSafeHwnd())
+			CConvertDialog convertDlg;
+			OutputSettings settings = optionsDlg.Result();
+			ConversionJob job = ConversionJob(vidHandle, filePath, settings, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
 			{
-				if(error != nullptr)
+				if(firstCallback)
 				{
-					AfxMessageBox(error, MB_ICONERROR);
-					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(false), 0);
+					WaitForSingleObject(convertDlg.dialogOpened, INFINITE);
+					firstCallback = false;
 				}
-				else if(progress >= 1.0f)
-				{
-					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(true), 0);
-				}
-				else
-				{
-					::SendMessage(hwnd, WM_CUSTOM_CONVERSION_PROGRESS, reinterpret_cast<WPARAM&>(progress), 0);
-				}
-			}
-		});
 
-		if(convertDlg.DoModal() == IDOK)
-		{
-			//ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
+				if(HWND hwnd = convertDlg.GetSafeHwnd())
+				{
+					if(error != nullptr)
+					{
+						AfxMessageBox(error, MB_ICONERROR);
+						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(false), 0);
+					}
+					else if(progress >= 1.0f)
+					{
+						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(true), 0);
+					}
+					else
+					{
+						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_PROGRESS, reinterpret_cast<WPARAM&>(progress), 0);
+					}
+				}
+			});
+
+			if(convertDlg.DoModal() == IDOK)
+			{
+				ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
+			}
 		}
 	}
 }

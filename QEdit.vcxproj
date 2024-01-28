@@ -219,27 +219,28 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\COutputOptionsDialog.h" />
     <ClInclude Include="src\CConvertDialog.h" />
     <ClInclude Include="src/framework.h" />
     <ClInclude Include="src/MainFrm.h" />
     <ClInclude Include="src/pch.h" />
-    <ClInclude Include="src/PropertiesWnd.h" />
     <ClInclude Include="src/QEdit.h" />
     <ClInclude Include="src/QEditDoc.h" />
     <ClInclude Include="src/QEditView.h" />
     <ClInclude Include="src/resource.h" />
     <ClInclude Include="src/targetver.h" />
     <ClInclude Include="src\CMediaCtrlWnd.h" />
-    <ClInclude Include="src\CMFCRangedPropertyGridProperty.h" />
     <ClInclude Include="src\ConversionJob.h" />
     <ClInclude Include="src\CTimeCtrlBar.h" />
     <ClInclude Include="src\CTimeRangeSelection.h" />
+    <ClInclude Include="src\DebugUtils.h" />
     <ClInclude Include="src\HighResolutionTimer.h" />
     <ClInclude Include="src\OutputSettings.h" />
     <ClInclude Include="src\usermsg.h" />
     <ClInclude Include="src\VideoHandle.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\COutputOptionsDialog.cpp" />
     <ClCompile Include="src\CConvertDialog.cpp" />
     <ClCompile Include="src/MainFrm.cpp" />
     <ClCompile Include="src/pch.cpp">
@@ -248,7 +249,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src/PropertiesWnd.cpp" />
     <ClCompile Include="src/QEdit.cpp" />
     <ClCompile Include="src/QEditDoc.cpp" />
     <ClCompile Include="src/QEditView.cpp" />
