@@ -48,15 +48,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
-	if(!m_wndMenuBar.Create(this))
-	{
-		TRACE0("Failed to create menubar\n");
-		return -1;
-	}
-	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
-
-	CMFCPopupMenu::SetForceMenuFocus(FALSE);
-
 	if(!m_wndMediaCtrl.Create(IDD_MEDIACTRL, this))
 	{
 		TRACE0("Failed to create media control window\n");

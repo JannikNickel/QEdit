@@ -166,11 +166,7 @@ void CQEditApp::OnAppAbout()
 
 void CQEditApp::PreLoadState()
 {
-	BOOL bNameValid;
-	CString strName;
-	bNameValid = strName.LoadString(IDS_EDIT_MENU);
-	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+
 }
 
 void CQEditApp::LoadCustomState()

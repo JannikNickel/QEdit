@@ -13,7 +13,6 @@ public:
 	CMediaCtrlWnd* GetMediaCtrl();
 
 protected:
-	CMFCMenuBar m_wndMenuBar;
 	CMediaCtrlWnd m_wndMediaCtrl;
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

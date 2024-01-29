@@ -16,8 +16,6 @@ IMPLEMENT_DYNCREATE(CQEditView, CView)
 
 BEGIN_MESSAGE_MAP(CQEditView, CView)
 	ON_WM_ERASEBKGND()
-	ON_WM_CONTEXTMENU()
-	ON_WM_RBUTTONUP()
 	ON_WM_DROPFILES()
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
@@ -34,7 +32,7 @@ CQEditView::~CQEditView()
 
 BOOL CQEditView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	//Modify the Window class or styles here by modifying CREATESTRUCT cs
+	cs.style &= ~WS_BORDER;
 	return CView::PreCreateWindow(cs);
 }
 
@@ -126,17 +124,6 @@ BOOL CQEditView::OnEraseBkgnd(CDC* pDC)
 {
 	//Required to prevent flickering (in combination with CMemDC double buffering in OnDraw)
 	return TRUE;
-}
-
-void CQEditView::OnContextMenu(CWnd* pWnd, CPoint point)
-{
-	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
-}
-
-void CQEditView::OnRButtonUp(UINT nFlags, CPoint point)
-{
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
 }
 
 void CQEditView::OnDropFiles(HDROP hDropInfo)
