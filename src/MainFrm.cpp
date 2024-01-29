@@ -162,6 +162,7 @@ void CMainFrame::ConvertCurrent()
 
 			CConvertDialog convertDlg;
 			OutputSettings settings = optionsDlg.Result();
+			std::tie(settings.start, settings.end) = m_wndMediaCtrl.TimeRangeSec();
 			ConversionJob job = ConversionJob(vidHandle, filePath, settings, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
 			{
 				if(firstCallback)
@@ -191,6 +192,7 @@ void CMainFrame::ConvertCurrent()
 			if(convertDlg.DoModal() == IDOK)
 			{
 				ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
+				MessageBeep(MB_OK);
 			}
 		}
 	}

@@ -48,6 +48,8 @@ struct AudioSettings
 
 struct OutputSettings
 {
+	double start;
+	double end;
 	VideoSettings video;
 	AudioSettings audio;
 };

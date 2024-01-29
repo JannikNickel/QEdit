@@ -1,5 +1,6 @@
 #pragma once
 #include <afxdlgs.h>
+#include <tuple>
 #include "CTimeCtrlBar.h"
 #include "CTimeRangeSelection.h"
 #include "HighResolutionTimer.h"
@@ -11,6 +12,7 @@ public:
 	~CMediaCtrlWnd();
 
 	double CurrentTime() const;
+	std::tuple<double, double> TimeRangeSec();
 	void InitVideoInfo(double totalTime, int totalFrames, double fps);
 	void Reset();
 	void StopPlayback();

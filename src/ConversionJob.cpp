@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "ConversionJob.h"
+#include "FFmpegCli.h"
+#include "FFmpegProgressReader.h"
 extern "C"
 {
 	#include "libavformat/avformat.h"
@@ -8,6 +10,8 @@ extern "C"
 	#include "libavutil/imgutils.h"
 	#include "libavutil/opt.h"
 }
+#include <format>
+#include <filesystem>
 
 ConversionJob::ConversionJob(VideoHandle* source, CString destination, const OutputSettings& settings, std::function<void(float, const TCHAR*)> progressCallback)
 	: source(source), destination(destination), settings(settings), progressCallback(progressCallback)
@@ -33,15 +37,17 @@ void ConversionJob::Stop()
 void ConversionJob::Convert()
 {
 	progressCallback(0.0f, nullptr);
+	std::string outPath = std::string(CW2A(destination));
 
-	std::string outPath = GetTempFilePath().value_or("");
-	if(outPath.empty())
-	{
-		progressCallback(0.0f, _T("Could not generate temporary file!"));
-		return;
-	}
-	outPath = "D://Desktop/test.mp4";
+	#if CONVERT_EXTERN
+	ConvertExtern(outPath);
+	#else
+	ConvertLib(outPath);
+	#endif
+}
 
+void ConversionJob::ConvertLib(std::string outFile)
+{
 	//Input refs
 	AVStream* inputStream = source->Stream();
 	AVCodecContext* inputCodecCtx = source->Codec();
@@ -71,7 +77,7 @@ void ConversionJob::Convert()
 		goto CLEANUP;
 	}
 
-	avformat_alloc_output_context2(&outFmtCtx, nullptr, "mp4", outPath.c_str());
+	avformat_alloc_output_context2(&outFmtCtx, nullptr, "mp4", outFile.c_str());
 	if(outFmtCtx == nullptr)
 	{
 		error = _T("Could not alloc output format context!");
@@ -147,7 +153,7 @@ void ConversionJob::Convert()
 		goto CLEANUP;
 	}
 
-	if(avio_open(&outFmtCtx->pb, outPath.c_str(), AVIO_FLAG_WRITE) < 0)
+	if(avio_open(&outFmtCtx->pb, outFile.c_str(), AVIO_FLAG_WRITE) < 0)
 	{
 		error = _T("Could not open output file!");
 		goto CLEANUP;
@@ -235,6 +241,93 @@ void ConversionJob::Convert()
 	sws_freeContext(swsCtx);
 
 	progressCallback(1.0f, error);
+}
+
+void ConversionJob::ConvertExtern(std::string outFile)
+{
+	char fileName[MAX_PATH];
+	GetModuleFileNameA(NULL, fileName, MAX_PATH);
+	std::filesystem::path ffmpegPath = std::filesystem::path(fileName).parent_path();
+	ffmpegPath.append(FFmpegCli::ffmpegPath);
+	if(!std::filesystem::exists(ffmpegPath))
+	{
+		CString err;
+		err.Format(_T("Could not find ffmpeg.exe! Expected it at \"%s\""), CString(FFmpegCli::ffmpegPath.c_str()));
+		progressCallback(0.0f, err);
+	}
+
+	std::string cmd = ffmpegPath.string();
+	//Input
+	std::string input = std::string(CW2A(*source->Path()));
+	cmd += std::format(" -y -i \"{0}\"", input.c_str());
+	//Start/end
+	if(settings.start != 0.0 && settings.end - settings.start > 0.0)
+	{
+		cmd += std::format(" -ss {0} -to {1}", settings.start, settings.end);
+	}
+	//Video
+	VideoSettings vSettings = settings.video;
+	if(vSettings.resolution.enabled || vSettings.fps.enabled || vSettings.bitrate.enabled || vSettings.codec.enabled)
+	{
+		if(vSettings.resolution.enabled)
+		{
+			Resolution res = vSettings.resolution.value;
+			cmd += std::format(" -s {0}x{1}", res.width, res.height);
+		}
+		if(vSettings.fps.enabled)
+		{
+			cmd += std::format(" -r {0}", vSettings.fps.value);
+		}
+		if(vSettings.bitrate.enabled)
+		{
+			Bitrate bitrate = vSettings.bitrate.value;
+			cmd += std::format(" -b:v {0}k", bitrate.rate);
+			if(bitrate.mode == BitrateMode::CBR)
+			{
+				cmd += std::format(" -minrate {0}k -maxrate {1}k", bitrate.rate, bitrate.rate);
+			}
+		}
+		if(vSettings.codec.enabled)
+		{
+			std::string codec = codecNames.find(vSettings.codec.value)->second;
+			cmd += std::format(" -c:v {0}", codec);
+		}
+	}
+	else
+	{
+		cmd += " -c:v copy";
+	}
+	//Audio
+	AudioSettings aSettings = settings.audio;
+	if(aSettings.mute || aSettings.bitrate.enabled)
+	{
+		if(aSettings.mute)
+		{
+			cmd += " -an";
+		}
+		else if(aSettings.bitrate.enabled)
+		{
+			cmd += std::format(" -b:a{0}k", aSettings.bitrate.value);
+		}
+	}
+	else
+	{
+		cmd += " -c:a copy";
+	}
+	//Output
+	cmd += std::format(" \"{0}\"", outFile);
+
+	bool error = false;
+	FFmpegProgressReader reader = FFmpegProgressReader(settings.end - settings.start, [&](float progress)
+	{
+		progressCallback(progress, NULL);
+	}, [&]() { error = true; });
+	FFmpegCli cli = FFmpegCli();
+
+	HANDLE handle;
+	cli.RunCmd(cmd, std::bind(&FFmpegProgressReader::StdOut, reader, std::placeholders::_1), std::bind(&FFmpegProgressReader::StdErr, reader, std::placeholders::_1), handle);
+
+	progressCallback(1.0f, error ? _T("Error occurred!") : NULL);
 }
 
 std::optional<std::string> ConversionJob::GetTempFilePath()

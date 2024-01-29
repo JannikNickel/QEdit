@@ -121,7 +121,8 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"</Command>
+      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"
+XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -149,7 +150,8 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"</Command>
+      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"
+XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -181,7 +183,8 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"</Command>
+      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"
+XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -215,7 +218,8 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"</Command>
+      <Command>XCOPY /E /Y "$(SolutionDir)external\ffmpeg\lib\*.dll" "$(OutDIr)"
+XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -234,6 +238,8 @@
     <ClInclude Include="src\CTimeCtrlBar.h" />
     <ClInclude Include="src\CTimeRangeSelection.h" />
     <ClInclude Include="src\DebugUtils.h" />
+    <ClInclude Include="src\FFmpegCli.h" />
+    <ClInclude Include="src\FFmpegProgressReader.h" />
     <ClInclude Include="src\HighResolutionTimer.h" />
     <ClInclude Include="src\OutputSettings.h" />
     <ClInclude Include="src\usermsg.h" />
@@ -256,6 +262,8 @@
     <ClCompile Include="src\ConversionJob.cpp" />
     <ClCompile Include="src\CTimeCtrlBar.cpp" />
     <ClCompile Include="src\CTimeRangeSelection.cpp" />
+    <ClCompile Include="src\FFmpegCli.cpp" />
+    <ClCompile Include="src\FFmpegProgressReader.cpp" />
     <ClCompile Include="src\VideoHandle.cpp" />
   </ItemGroup>
   <ItemGroup>

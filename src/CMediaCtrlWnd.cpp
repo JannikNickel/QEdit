@@ -29,6 +29,14 @@ double CMediaCtrlWnd::CurrentTime() const
 	return m_wndTimeCtrl.Progress();
 }
 
+std::tuple<double, double> CMediaCtrlWnd::TimeRangeSec()
+{
+	auto [from, to] = m_WndTimeRangeSelection.Range();
+	from *= totalTime;
+	to *= totalTime;
+	return std::make_tuple(from, to);
+}
+
 void CMediaCtrlWnd::InitVideoInfo(double totalTime, int totalFrames, double fps)
 {
 	this->totalTime = totalTime;
