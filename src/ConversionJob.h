@@ -20,6 +20,7 @@ class ConversionJob
 public:
 	ConversionJob(VideoHandle* source, CString destination, const OutputSettings& settings, std::function<void(float progress, const TCHAR* error)> progressCallback);
 	~ConversionJob();
+
 	void Stop();
 
 protected:

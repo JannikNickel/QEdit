@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include "winuser.h"
 
 #define WM_CUSTOM_VIEW_SIZE_CHANGED (WM_USER + 1)
 #define WM_CUSTOM_CONVERSION_PROGRESS (WM_USER + 2)

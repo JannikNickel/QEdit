@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "usermsg.h"
-#include "CTimeCtrlBar.h"
+#include "TimeCtrlBar.h"
 #include <algorithm>
 
 BEGIN_MESSAGE_MAP(CTimeCtrlBar, CWnd)
@@ -17,12 +17,12 @@ BOOL CTimeCtrlBar::Create(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UIN
 
 double CTimeCtrlBar::Progress() const
 {
-	return m_Progress;
+	return progress;
 }
 
 void CTimeCtrlBar::SetProgress(double progress)
 {
-	m_Progress = std::clamp(progress, 0.0, 1.0);
+	this->progress = std::clamp(progress, 0.0, 1.0);
 	Invalidate();
 	GetParent()->SendMessage(WM_COMMAND, ID_CUSTOM_MEDIA_CTRL_CHANGED);
 }
@@ -44,7 +44,7 @@ void CTimeCtrlBar::OnPaint()
 
 	pDC.FillSolidRect(rect, RGB(200, 200, 200));
 
-	rect.right = rect.left + static_cast<int>(rect.Width() * m_Progress);
+	rect.right = rect.left + static_cast<int>(rect.Width() * progress);
 	pDC.FillSolidRect(rect, RGB(0, 120, 215));
 }
 
@@ -53,7 +53,7 @@ void CTimeCtrlBar::OnLButtonDown(UINT nFlags, CPoint point)
 	CWnd::OnLButtonDown(nFlags, point);
 
 	PointToProgress(point);
-	m_Dragging = true;
+	dragging = true;
 	SetCapture();
 }
 
@@ -61,7 +61,7 @@ void CTimeCtrlBar::OnMouseMove(UINT nFlags, CPoint point)
 {
 	CWnd::OnMouseMove(nFlags, point);
 
-	if(m_Dragging)
+	if(dragging)
 	{
 		PointToProgress(point);
 	}
@@ -71,9 +71,9 @@ void CTimeCtrlBar::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	CWnd::OnLButtonUp(nFlags, point);
 
-	if(m_Dragging)
+	if(dragging)
 	{
-		m_Dragging = false;
+		dragging = false;
 		ReleaseCapture();
 	}
 }

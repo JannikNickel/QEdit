@@ -1,16 +1,11 @@
 #include "pch.h"
 #include "framework.h"
-#include "QEdit.h"
+#include "usermsg.h"
 
+#include "QEdit.h"
 #include "QEditDoc.h"
 #include "QEditView.h"
 #include "MainFrm.h"
-
-#include "usermsg.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 
 IMPLEMENT_DYNCREATE(CQEditView, CView)
 
@@ -20,14 +15,9 @@ BEGIN_MESSAGE_MAP(CQEditView, CView)
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
-CQEditView::CQEditView() noexcept
+CQEditDoc* CQEditView::GetDocument() const
 {
-
-}
-
-CQEditView::~CQEditView()
-{
-
+	return reinterpret_cast<CQEditDoc*>(m_pDocument);
 }
 
 BOOL CQEditView::PreCreateWindow(CREATESTRUCT& cs)
@@ -68,8 +58,6 @@ void CQEditView::OnDraw(CDC* cDC)
 		cDC->TextOutW((width - strSize.cx) / 2, (height - strSize.cy) / 2, str);
 
 		cDC->SelectObject(oldFont);
-
-		pDoc->SetVideoFile("D://Desktop/2023-10-13 20-32-39.mp4");
 	}
 	else
 	{
@@ -160,24 +148,5 @@ void CQEditView::OnDropFiles(HDROP hDropInfo)
 void CQEditView::OnSize(UINT nType, int cx, int cy)
 {
 	CView::OnSize(nType, cx, cy);
-
 	GetParent()->SendMessage(WM_CUSTOM_VIEW_SIZE_CHANGED);
 }
-
-#ifdef _DEBUG
-void CQEditView::AssertValid() const
-{
-	CView::AssertValid();
-}
-
-void CQEditView::Dump(CDumpContext& dc) const
-{
-	CView::Dump(dc);
-}
-
-CQEditDoc* CQEditView::GetDocument() const
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CQEditDoc)));
-	return (CQEditDoc*)m_pDocument;
-}
-#endif //_DEBUG

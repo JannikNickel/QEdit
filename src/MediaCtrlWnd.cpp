@@ -1,9 +1,8 @@
 #include "pch.h"
-#include "CMediaCtrlWnd.h"
 #include "resource.h"
-#include "MainFrm.h"
-
 #include "usermsg.h"
+#include "MediaCtrlWnd.h"
+#include "MainFrm.h"
 
 BEGIN_MESSAGE_MAP(CMediaCtrlWnd, CDialogEx)
 	ON_WM_SIZE()
@@ -26,12 +25,12 @@ CMediaCtrlWnd::~CMediaCtrlWnd()
 
 double CMediaCtrlWnd::CurrentTime() const
 {
-	return m_wndTimeCtrl.Progress();
+	return timeCtrlWnd.Progress();
 }
 
 std::tuple<double, double> CMediaCtrlWnd::TimeRangeSec()
 {
-	auto [from, to] = m_WndTimeRangeSelection.Range();
+	auto [from, to] = timeRangeSelectionWnd.Range();
 	from *= totalTime;
 	to *= totalTime;
 	return std::make_tuple(from, to);
@@ -47,13 +46,13 @@ void CMediaCtrlWnd::InitVideoInfo(double totalTime, int totalFrames, double fps)
 
 void CMediaCtrlWnd::Reset()
 {
-	if(m_wndTimeCtrl.GetSafeHwnd())
+	if(timeCtrlWnd.GetSafeHwnd())
 	{
-		m_wndTimeCtrl.SetProgress(0.0);
+		timeCtrlWnd.SetProgress(0.0);
 	}
-	if(m_WndTimeRangeSelection.GetSafeHwnd())
+	if(timeRangeSelectionWnd.GetSafeHwnd())
 	{
-		m_WndTimeRangeSelection.SetRange(0.0, 1.0);
+		timeRangeSelectionWnd.SetRange(0.0, 1.0);
 	}
 	Invalidate();
 }
@@ -72,12 +71,12 @@ BOOL CMediaCtrlWnd::OnInitDialog()
 	{
 		return FALSE;
 	}
-	if(!m_wndTimeCtrl.Create(DS_CONTROL | WS_VISIBLE, CRect(45, 10, 500, 15), this, IDC_MCTRL_TIMELINE_PROGRESS))
+	if(!timeCtrlWnd.Create(DS_CONTROL | WS_VISIBLE, CRect(45, 10, 500, 15), this, IDC_MCTRL_TIMELINE_PROGRESS))
 	{
 		TRACE0("Failed to create time control window\n");
 		return FALSE;
 	}
-	if(!m_WndTimeRangeSelection.Create(DS_CONTROL | WS_VISIBLE, CRect(45, 5, 500, 10), this, IDC_MCTRL_RANGE_SELECTION))
+	if(!timeRangeSelectionWnd.Create(DS_CONTROL | WS_VISIBLE, CRect(45, 5, 500, 10), this, IDC_MCTRL_RANGE_SELECTION))
 	{
 		TRACE0("Failed to range selection window\n");
 		return FALSE;
@@ -104,13 +103,13 @@ void CMediaCtrlWnd::OnHighResTimer(double dt)
 
 void CMediaCtrlWnd::MoveProgress(double seconds)
 {
-	double p = m_wndTimeCtrl.Progress() + (seconds / totalTime);
-	m_wndTimeCtrl.SetProgress(p);
+	double p = timeCtrlWnd.Progress() + (seconds / totalTime);
+	timeCtrlWnd.SetProgress(p);
 }
 
 void CMediaCtrlWnd::UpdateTimeText()
 {
-	double p = m_wndTimeCtrl.Progress();
+	double p = timeCtrlWnd.Progress();
 
 	CStatic* m_wndTimeLabel = (CStatic*)GetDlgItem(IDC_MCTRL_TEXT_TIME);
 	if(m_wndTimeLabel != nullptr)
@@ -125,7 +124,7 @@ void CMediaCtrlWnd::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
 
-	if(m_wndTimeCtrl.GetSafeHwnd())
+	if(timeCtrlWnd.GetSafeHwnd())
 	{
 		const int leftMargin = 110;
 		const int rightMargin = 110;
@@ -138,11 +137,11 @@ void CMediaCtrlWnd::OnSize(UINT nType, int cx, int cy)
 		rect.right -= rightMargin;
 		rect.top += (rectHeight - height) / 2;
 		rect.bottom -= (rectHeight - height) / 2;
-		m_wndTimeCtrl.MoveWindow(rect);
+		timeCtrlWnd.MoveWindow(rect);
 
 		rect.top = 5;
 		rect.bottom = rect.top + 10;
-		m_WndTimeRangeSelection.MoveWindow(rect);
+		timeRangeSelectionWnd.MoveWindow(rect);
 	}
 }
 
@@ -157,7 +156,7 @@ void CMediaCtrlWnd::OnMediaCtrlPlaybackThreadChanged()
 	if(isPlaying)
 	{
 		MoveProgress(1.0 / videoFps);
-		if(m_wndTimeCtrl.Progress() >= 1.0)
+		if(timeCtrlWnd.Progress() >= 1.0)
 		{
 			OnPlayButtonClicked();
 		}

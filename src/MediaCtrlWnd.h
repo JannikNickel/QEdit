@@ -1,8 +1,8 @@
 #pragma once
 #include <afxdlgs.h>
 #include <tuple>
-#include "CTimeCtrlBar.h"
-#include "CTimeRangeSelection.h"
+#include "TimeCtrlBar.h"
+#include "TimeRangeSelection.h"
 #include "HighResolutionTimer.h"
 
 class CMediaCtrlWnd : public CDialogEx
@@ -18,8 +18,8 @@ public:
 	void StopPlayback();
 
 protected:
-	CTimeCtrlBar m_wndTimeCtrl;
-	CTimeRangeSelection m_WndTimeRangeSelection;
+	CTimeCtrlBar timeCtrlWnd;
+	CTimeRangeSelection timeRangeSelectionWnd;
 	bool isPlaying = false;
 
 	double totalTime = 0.0;
@@ -39,6 +39,5 @@ protected:
 	afx_msg void OnPlayButtonClicked();
 	afx_msg void OnPrevButtonClicked();
 	afx_msg void OnNextButtonClicked();
-
 	DECLARE_MESSAGE_MAP();
 };

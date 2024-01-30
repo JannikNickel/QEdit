@@ -1,18 +1,13 @@
 #include "pch.h"
 #include "framework.h"
+#include "usermsg.h"
 
 #include "QEdit.h"
 #include "MainFrm.h"
 #include "QEditDoc.h"
-#include "COutputOptionsDialog.h"
-#include "CConvertDialog.h"
+#include "OutputOptionsDialog.h"
+#include "ConvertDialog.h"
 #include "ConversionJob.h"
-
-#include "usermsg.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
@@ -26,19 +21,105 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_CONVERT, &CMainFrame::OnConvert)
 END_MESSAGE_MAP()
 
-CMainFrame::CMainFrame() noexcept
-{
-
-}
-
-CMainFrame::~CMainFrame()
-{
-
-}
-
 CMediaCtrlWnd* CMainFrame::GetMediaCtrl()
 {
-	return &m_wndMediaCtrl;
+	return &mediaCtrlWnd;
+}
+
+void CMainFrame::UpdateMediaCtrlLayout()
+{
+	if(mediaCtrlWnd.GetSafeHwnd())
+	{
+		const int mediaCtrlHeightDDU = 25;
+		const int bottomMargin = 10;
+		const int lrMargin = 10;
+
+		CRect dialogRect = CRect(0, 0, 0, mediaCtrlHeightDDU);
+		MapDialogRect(mediaCtrlWnd.GetSafeHwnd(), &dialogRect);
+		int heightInPx = dialogRect.Height();
+
+		CView* view = GetActiveView();
+		if(view != nullptr)
+		{
+			CRect rect;
+			view->GetClientRect(&rect);
+			rect.top = rect.bottom - heightInPx - bottomMargin;
+			rect.bottom -= bottomMargin;
+			rect.left += lrMargin;
+			rect.right -= lrMargin;
+			mediaCtrlWnd.MoveWindow(&rect);
+		}
+	}
+}
+
+void CMainFrame::UpdateWindowVisibility()
+{
+	if(mediaCtrlWnd.GetSafeHwnd())
+	{
+		mediaCtrlWnd.ShowWindow(IsVideoLoaded());
+	}
+}
+
+bool CMainFrame::IsVideoLoaded()
+{
+	CQEditDoc* doc = dynamic_cast<CQEditDoc*>(GetActiveDocument());
+	return doc != nullptr && doc->HasVideo();
+}
+
+void CMainFrame::ConvertCurrent()
+{
+	if(mediaCtrlWnd.GetSafeHwnd())
+	{
+		mediaCtrlWnd.StopPlayback();
+	}
+
+	VideoHandle* vidHandle = static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle();
+	COutputOptionsDialog optionsDlg = COutputOptionsDialog(vidHandle, this);
+	if(optionsDlg.DoModal() == IDOK)
+	{
+		CString filePath;
+		CString filter = _T("Video Files (*.mp4)|*.mp4||");
+		CFileDialog fileDlg = CFileDialog(FALSE, _T(".mp4"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
+		if(fileDlg.DoModal() == IDOK)
+		{
+			filePath = fileDlg.GetPathName();
+
+			CConvertDialog convertDlg;
+			OutputSettings settings = optionsDlg.Result();
+			std::tie(settings.start, settings.end) = mediaCtrlWnd.TimeRangeSec();
+			ConversionJob job = ConversionJob(vidHandle, filePath, settings, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
+			{
+				if(firstCallback)
+				{
+					WaitForSingleObject(convertDlg.dialogOpened, INFINITE);
+					firstCallback = false;
+				}
+
+				if(HWND hwnd = convertDlg.GetSafeHwnd())
+				{
+					if(error != nullptr)
+					{
+						AfxMessageBox(error, MB_ICONERROR);
+						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(false), 0);
+					}
+					else if(progress >= 1.0f)
+					{
+						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(true), 0);
+					}
+					else
+					{
+						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_PROGRESS, reinterpret_cast<WPARAM&>(progress), 0);
+					}
+				}
+			});
+
+			if(convertDlg.DoModal() == IDOK)
+			{
+				ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
+				MessageBeep(MB_OK);
+			}
+		}
+	}
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -48,12 +129,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
-	if(!m_wndMediaCtrl.Create(IDD_MEDIACTRL, this))
+	if(!mediaCtrlWnd.Create(IDD_MEDIACTRL, this))
 	{
 		TRACE0("Failed to create media control window\n");
 		return -1;
 	}
-	m_wndMediaCtrl.ShowWindow(TRUE);
+	mediaCtrlWnd.ShowWindow(TRUE);
 	UpdateMediaCtrlLayout();
 	UpdateWindowVisibility();
 
@@ -91,100 +172,4 @@ void CMainFrame::UpdateConvertButton(CCmdUI* pCmdUI)
 void CMainFrame::OnConvert()
 {
 	ConvertCurrent();
-}
-
-void CMainFrame::UpdateMediaCtrlLayout()
-{
-	if(m_wndMediaCtrl.GetSafeHwnd())
-	{
-		const int mediaCtrlHeightDDU = 25;
-		const int bottomMargin = 10;
-		const int lrMargin = 10;
-
-		CRect dialogRect = CRect(0, 0, 0, mediaCtrlHeightDDU);
-		MapDialogRect(m_wndMediaCtrl.GetSafeHwnd(), &dialogRect);
-		int heightInPx = dialogRect.Height();
-
-		CView* view = GetActiveView();
-		if(view != nullptr)
-		{
-			CRect rect;
-			view->GetClientRect(&rect);
-			rect.top = rect.bottom - heightInPx - bottomMargin;
-			rect.bottom -= bottomMargin;
-			rect.left += lrMargin;
-			rect.right -= lrMargin;
-			m_wndMediaCtrl.MoveWindow(&rect);
-		}
-	}
-}
-
-void CMainFrame::UpdateWindowVisibility()
-{
-	if(m_wndMediaCtrl.GetSafeHwnd())
-	{
-		m_wndMediaCtrl.ShowWindow(IsVideoLoaded());
-	}
-}
-
-bool CMainFrame::IsVideoLoaded()
-{
-	CQEditDoc* doc = dynamic_cast<CQEditDoc*>(GetActiveDocument());
-	return doc != nullptr && doc->HasVideo();
-}
-
-void CMainFrame::ConvertCurrent()
-{
-	if(m_wndMediaCtrl.GetSafeHwnd())
-	{
-		m_wndMediaCtrl.StopPlayback();
-	}
-
-	VideoHandle* vidHandle = static_cast<CQEditDoc*>(GetActiveDocument())->GetVideoHandle();
-	COutputOptionsDialog optionsDlg = COutputOptionsDialog(vidHandle, this);
-	if(optionsDlg.DoModal() == IDOK)
-	{
-		CString filePath;
-		CString filter = _T("Video Files (*.mp4)|*.mp4||");
-		CFileDialog fileDlg = CFileDialog(FALSE, _T(".mp4"), _T(""), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter, this);
-		if(fileDlg.DoModal() == IDOK)
-		{
-			filePath = fileDlg.GetPathName();
-
-			CConvertDialog convertDlg;
-			OutputSettings settings = optionsDlg.Result();
-			std::tie(settings.start, settings.end) = m_wndMediaCtrl.TimeRangeSec();
-			ConversionJob job = ConversionJob(vidHandle, filePath, settings, [&convertDlg, firstCallback = true](float progress, const TCHAR* error) mutable
-			{
-				if(firstCallback)
-				{
-					WaitForSingleObject(convertDlg.dialogOpened, INFINITE);
-					firstCallback = false;
-				}
-
-				if(HWND hwnd = convertDlg.GetSafeHwnd())
-				{
-					if(error != nullptr)
-					{
-						AfxMessageBox(error, MB_ICONERROR);
-						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(false), 0);
-					}
-					else if(progress >= 1.0f)
-					{
-						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_COMPLETED, static_cast<WPARAM>(true), 0);
-					}
-					else
-					{
-						::SendMessage(hwnd, WM_CUSTOM_CONVERSION_PROGRESS, reinterpret_cast<WPARAM&>(progress), 0);
-					}
-				}
-			});
-
-			if(convertDlg.DoModal() == IDOK)
-			{
-				ShellExecute(NULL, _T("open"), _T("explorer"), _T("/select,\"") + filePath + _T("\""), NULL, SW_SHOWDEFAULT);
-				MessageBeep(MB_OK);
-			}
-		}
-	}
 }

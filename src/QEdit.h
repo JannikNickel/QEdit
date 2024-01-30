@@ -11,18 +11,9 @@ class CQEditApp : public CWinAppEx
 public:
 	CQEditApp() noexcept;
 
-
-// Overrides
 public:
-	virtual BOOL InitInstance();
-	virtual int ExitInstance();
-
-// Implementation
-	BOOL m_bHiColorIcons;
-
-	virtual void PreLoadState();
-	virtual void LoadCustomState();
-	virtual void SaveCustomState();
+	BOOL InitInstance() override;
+	int ExitInstance() override;
 
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()

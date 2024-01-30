@@ -1,8 +1,7 @@
 #include "pch.h"
-#include "afxdialogex.h"
-#include "CConvertDialog.h"
 #include "resource.h"
 #include "usermsg.h"
+#include "ConvertDialog.h"
 #include <algorithm>
 
 IMPLEMENT_DYNAMIC(CConvertDialog, CDialogEx)

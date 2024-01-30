@@ -45,10 +45,9 @@ private:
 		while(isRunning)
 		{
 			auto t2 = Clock::now();
-			double dt = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() * 1e-9);
+			currDt = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count() * 1e-9);
 			t1 = t2;
-			currDt = dt;
-			callback(dt);
+			callback(currDt);
 		}
 	}
 };

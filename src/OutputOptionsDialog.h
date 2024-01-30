@@ -1,5 +1,5 @@
 #pragma once
-#include "afxdialogex.h"
+#include <afxdialogex.h>
 #include "OutputSettings.h"
 #include "VideoHandle.h"
 
@@ -13,24 +13,24 @@ public:
 	OutputSettings Result() const;
 
 protected:
-	CButton m_ResCheck;
-	CButton m_FpsCheck;
-	CButton m_BitrateCheck;
-	CButton m_CodecCheck;
-	CButton m_AudioMuteCheck;
-	CButton m_AudioBitrateCheck;
+	CButton resBtn;
+	CButton fpsBtn;
+	CButton bitrateBtn;
+	CButton codecBtn;
+	CButton audioMuteBtn;
+	CButton audioBitrateBtn;
 
-	CEdit m_ResWidthEdit;
-	CEdit m_ResHeightEdit;
-	CEdit m_FpsEdit;
-	CEdit m_BitrateEdit;
-	CComboBox m_BitrateModeCombo;
-	CComboBox m_CodecCombo;
-	CEdit m_AudioBitrateEdit;
+	CEdit resWidthEdit;
+	CEdit resHeightEdit;
+	CEdit fpsEdit;
+	CEdit bitrateEdit;
+	CComboBox bitrateModeCombo;
+	CComboBox codecCombo;
+	CEdit audioBitrateEdit;
 
 	bool initUIValues = false;
 	VideoHandle* vidHandle = nullptr;
-	OutputSettings m_Result = { 0 };
+	OutputSettings result = { 0 };
 
 	BOOL OnInitDialog() override;
 	void DoDataExchange(CDataExchange* pDX) override;

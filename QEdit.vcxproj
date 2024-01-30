@@ -223,8 +223,8 @@ XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\COutputOptionsDialog.h" />
-    <ClInclude Include="src\CConvertDialog.h" />
+    <ClInclude Include="src\OutputOptionsDialog.h" />
+    <ClInclude Include="src\ConvertDialog.h" />
     <ClInclude Include="src/framework.h" />
     <ClInclude Include="src/MainFrm.h" />
     <ClInclude Include="src/pch.h" />
@@ -233,10 +233,10 @@ XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     <ClInclude Include="src/QEditView.h" />
     <ClInclude Include="src/resource.h" />
     <ClInclude Include="src/targetver.h" />
-    <ClInclude Include="src\CMediaCtrlWnd.h" />
+    <ClInclude Include="src\MediaCtrlWnd.h" />
     <ClInclude Include="src\ConversionJob.h" />
-    <ClInclude Include="src\CTimeCtrlBar.h" />
-    <ClInclude Include="src\CTimeRangeSelection.h" />
+    <ClInclude Include="src\TimeCtrlBar.h" />
+    <ClInclude Include="src\TimeRangeSelection.h" />
     <ClInclude Include="src\DebugUtils.h" />
     <ClInclude Include="src\FFmpegCli.h" />
     <ClInclude Include="src\FFmpegProgressReader.h" />
@@ -246,8 +246,8 @@ XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     <ClInclude Include="src\VideoHandle.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\COutputOptionsDialog.cpp" />
-    <ClCompile Include="src\CConvertDialog.cpp" />
+    <ClCompile Include="src\OutputOptionsDialog.cpp" />
+    <ClCompile Include="src\ConvertDialog.cpp" />
     <ClCompile Include="src/MainFrm.cpp" />
     <ClCompile Include="src/pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -258,10 +258,10 @@ XCOPY /E /Y "$(SolutionDir)external\ffmpeg\bin\*.exe" "$(OutDIr)"</Command>
     <ClCompile Include="src/QEdit.cpp" />
     <ClCompile Include="src/QEditDoc.cpp" />
     <ClCompile Include="src/QEditView.cpp" />
-    <ClCompile Include="src\CMediaCtrlWnd.cpp" />
+    <ClCompile Include="src\MediaCtrlWnd.cpp" />
     <ClCompile Include="src\ConversionJob.cpp" />
-    <ClCompile Include="src\CTimeCtrlBar.cpp" />
-    <ClCompile Include="src\CTimeRangeSelection.cpp" />
+    <ClCompile Include="src\TimeCtrlBar.cpp" />
+    <ClCompile Include="src\TimeRangeSelection.cpp" />
     <ClCompile Include="src\FFmpegCli.cpp" />
     <ClCompile Include="src\FFmpegProgressReader.cpp" />
     <ClCompile Include="src\VideoHandle.cpp" />

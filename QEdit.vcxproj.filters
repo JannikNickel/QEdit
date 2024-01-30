@@ -42,22 +42,22 @@
     <ClInclude Include="src/resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CMediaCtrlWnd.h">
+    <ClInclude Include="src\MediaCtrlWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\usermsg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CTimeCtrlBar.h">
+    <ClInclude Include="src\TimeCtrlBar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\HighResolutionTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CTimeRangeSelection.h">
+    <ClInclude Include="src\TimeRangeSelection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\CConvertDialog.h">
+    <ClInclude Include="src\ConvertDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ConversionJob.h">
@@ -69,7 +69,7 @@
     <ClInclude Include="src\OutputSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\COutputOptionsDialog.h">
+    <ClInclude Include="src\OutputOptionsDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\DebugUtils.h">
@@ -98,16 +98,16 @@
     <ClCompile Include="src/pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CMediaCtrlWnd.cpp">
+    <ClCompile Include="src\MediaCtrlWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CTimeCtrlBar.cpp">
+    <ClCompile Include="src\TimeCtrlBar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CTimeRangeSelection.cpp">
+    <ClCompile Include="src\TimeRangeSelection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CConvertDialog.cpp">
+    <ClCompile Include="src\ConvertDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ConversionJob.cpp">
@@ -116,7 +116,7 @@
     <ClCompile Include="src\VideoHandle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\COutputOptionsDialog.cpp">
+    <ClCompile Include="src\OutputOptionsDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\FFmpegCli.cpp">

@@ -1,4 +1,5 @@
 #pragma once
+#include <afxwin.h>
 #include <tuple>
 #include <vector>
 #include "VideoHandle.h"
@@ -18,15 +19,16 @@ class CQEditDoc : public CDocument
 		AVFrame* frame;
 	};
 
-public:
-	virtual ~CQEditDoc();
+	DECLARE_DYNCREATE(CQEditDoc)
 
-	virtual BOOL OnNewDocument();
+public:
+	~CQEditDoc();
+
+	BOOL OnNewDocument() override;
 
 	bool HasVideo() const;
 	VideoHandle* GetVideoHandle() const;
 	CString* FilePath() const;
-
 	std::tuple<int, int> VideoResolution() const;
 	double Duration() const;
 	int FrameCount() const;
@@ -36,15 +38,12 @@ public:
 	bool GetVideoFrame(double time, int width, int height, CBitmap* bitmap);
 
 protected:
-	CQEditDoc() noexcept;
-	DECLARE_DYNCREATE(CQEditDoc)
-	DECLARE_MESSAGE_MAP()
-
-private:
 	VideoHandle* vidHandle = nullptr;
 	std::vector<int64_t> iFrames = {};
 	std::vector<FrameData> frames = {};
 	std::tuple<int64_t, int64_t> loadedFrameRange = { 0, 0 };
+
+	CQEditDoc() noexcept { }
 
 	void DiscardLoadedFrames();
 	std::tuple<int64_t, int64_t> LoadFrameRange(int64_t lIFrame, int64_t timestamp, bool seek, bool full);
@@ -54,4 +53,6 @@ private:
 	std::vector<int64_t> FindIFrames();
 	bool WriteFrameToBitmap(const AVFrame* frame, int width, int height, CBitmap* bitmap) const;
 	void FreeResources();
+
+	DECLARE_MESSAGE_MAP()
 };

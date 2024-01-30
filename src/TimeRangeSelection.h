@@ -1,4 +1,5 @@
 #pragma once
+#include <afxwin.h>
 #include <tuple>
 
 class CTimeRangeSelection : public CWnd

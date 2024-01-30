@@ -1,19 +1,24 @@
 #pragma once
-#include "CMediaCtrlWnd.h"
+#include <afxframewndex.h>
+#include "MediaCtrlWnd.h"
 
 class CMainFrame : public CFrameWndEx
 {
-protected:
 	DECLARE_DYNCREATE(CMainFrame)
-	CMainFrame() noexcept;
 
 public:
-	virtual ~CMainFrame();
-
 	CMediaCtrlWnd* GetMediaCtrl();
 
 protected:
-	CMediaCtrlWnd m_wndMediaCtrl;
+	CMediaCtrlWnd mediaCtrlWnd;
+
+	CMainFrame() noexcept { }
+
+	void UpdateMediaCtrlLayout();
+	void UpdateWindowVisibility();
+
+	bool IsVideoLoaded();
+	void ConvertCurrent();
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -23,10 +28,4 @@ protected:
 	afx_msg void UpdateConvertButton(CCmdUI* pCmdUI);
 	afx_msg void OnConvert();
 	DECLARE_MESSAGE_MAP()
-
-	void UpdateMediaCtrlLayout();
-	void UpdateWindowVisibility();
-
-	bool IsVideoLoaded();
-	void ConvertCurrent();
 };

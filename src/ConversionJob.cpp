@@ -322,10 +322,9 @@ void ConversionJob::ConvertExtern(std::string outFile)
 	{
 		progressCallback(progress, NULL);
 	}, [&]() { error = true; });
-	FFmpegCli cli = FFmpegCli();
 
-	HANDLE handle;
-	cli.RunCmd(cmd, std::bind(&FFmpegProgressReader::StdOut, reader, std::placeholders::_1), std::bind(&FFmpegProgressReader::StdErr, reader, std::placeholders::_1), handle);
+	FFmpegCli cli = FFmpegCli();
+	cli.RunCmd(cmd, std::bind(&FFmpegProgressReader::StdOut, reader, std::placeholders::_1), std::bind(&FFmpegProgressReader::StdErr, reader, std::placeholders::_1));
 
 	progressCallback(1.0f, error ? _T("Error occurred!") : NULL);
 }

@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "COutputOptionsDialog.h"
 #include "resource.h"
+#include "OutputOptionsDialog.h"
 #include <cmath>
 #include <algorithm>
 
@@ -23,7 +23,7 @@ COutputOptionsDialog::COutputOptionsDialog(VideoHandle* vidHandle, CWnd* pParent
 
 OutputSettings COutputOptionsDialog::Result() const
 {
-	return m_Result;
+	return result;
 }
 
 BOOL COutputOptionsDialog::OnInitDialog()
@@ -36,20 +36,20 @@ void COutputOptionsDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 
-	DDX_Control(pDX, IDC_CSET_CHECK_RESOLUTION, m_ResCheck);
-	DDX_Control(pDX, IDC_CSET_CHECK_FPS, m_FpsCheck);
-	DDX_Control(pDX, IDC_CSET_CHECK_BITRATE, m_BitrateCheck);
-	DDX_Control(pDX, IDC_CSET_CHECK_CODEC, m_CodecCheck);
-	DDX_Control(pDX, IDC_CSET_CHECK_ADMUTE, m_AudioMuteCheck);
-	DDX_Control(pDX, IDC_CSET_CHECK_ADBITRATE, m_AudioBitrateCheck);
+	DDX_Control(pDX, IDC_CSET_CHECK_RESOLUTION, resBtn);
+	DDX_Control(pDX, IDC_CSET_CHECK_FPS, fpsBtn);
+	DDX_Control(pDX, IDC_CSET_CHECK_BITRATE, bitrateBtn);
+	DDX_Control(pDX, IDC_CSET_CHECK_CODEC, codecBtn);
+	DDX_Control(pDX, IDC_CSET_CHECK_ADMUTE, audioMuteBtn);
+	DDX_Control(pDX, IDC_CSET_CHECK_ADBITRATE, audioBitrateBtn);
 
-	DDX_Control(pDX, IDC_CSET_RES_WIDTH, m_ResWidthEdit);
-	DDX_Control(pDX, IDC_CSET_RES_HEIGHT, m_ResHeightEdit);
-	DDX_Control(pDX, IDC_CSET_FPS, m_FpsEdit);
-	DDX_Control(pDX, IDC_CSET_BITRATE, m_BitrateEdit);
-	DDX_Control(pDX, IDC_CSET_BITRATE_MODE, m_BitrateModeCombo);
-	DDX_Control(pDX, IDC_CSET_CODEC, m_CodecCombo);
-	DDX_Control(pDX, IDC_CSET_ADBITRATE, m_AudioBitrateEdit);
+	DDX_Control(pDX, IDC_CSET_RES_WIDTH, resWidthEdit);
+	DDX_Control(pDX, IDC_CSET_RES_HEIGHT, resHeightEdit);
+	DDX_Control(pDX, IDC_CSET_FPS, fpsEdit);
+	DDX_Control(pDX, IDC_CSET_BITRATE, bitrateEdit);
+	DDX_Control(pDX, IDC_CSET_BITRATE_MODE, bitrateModeCombo);
+	DDX_Control(pDX, IDC_CSET_CODEC, codecCombo);
+	DDX_Control(pDX, IDC_CSET_ADBITRATE, audioBitrateEdit);
 
 	if(!initUIValues)
 	{
@@ -63,24 +63,24 @@ void COutputOptionsDialog::DoDataExchange(CDataExchange* pDX)
 void COutputOptionsDialog::SetVideoDataToUI()
 {
 	//TODO this could show the settings from the vidHandle instead of default values
-	m_ResWidthEdit.SetWindowText(_T("1920"));
-	m_ResHeightEdit.SetWindowText(_T("1080"));
-	m_FpsEdit.SetWindowText(_T("60"));
-	m_BitrateEdit.SetWindowText(_T("6000"));
-	m_BitrateModeCombo.SetCurSel(0);
-	m_CodecCombo.SetCurSel(0);
-	m_AudioBitrateEdit.SetWindowText(_T("128"));
+	resWidthEdit.SetWindowText(_T("1920"));
+	resHeightEdit.SetWindowText(_T("1080"));
+	fpsEdit.SetWindowText(_T("60"));
+	bitrateEdit.SetWindowText(_T("6000"));
+	bitrateModeCombo.SetCurSel(0);
+	codecCombo.SetCurSel(0);
+	audioBitrateEdit.SetWindowText(_T("128"));
 }
 
 void COutputOptionsDialog::UpdateControlState()
 {
-	m_ResWidthEdit.EnableWindow(m_ResCheck.GetCheck());
-	m_ResHeightEdit.EnableWindow(m_ResCheck.GetCheck());
-	m_FpsEdit.EnableWindow(m_FpsCheck.GetCheck());
-	m_BitrateEdit.EnableWindow(m_BitrateCheck.GetCheck());
-	m_BitrateModeCombo.EnableWindow(m_BitrateCheck.GetCheck());
-	m_CodecCombo.EnableWindow(m_CodecCheck.GetCheck());
-	m_AudioBitrateEdit.EnableWindow(m_AudioBitrateCheck.GetCheck());
+	resWidthEdit.EnableWindow(resBtn.GetCheck());
+	resHeightEdit.EnableWindow(resBtn.GetCheck());
+	fpsEdit.EnableWindow(fpsBtn.GetCheck());
+	bitrateEdit.EnableWindow(bitrateBtn.GetCheck());
+	bitrateModeCombo.EnableWindow(bitrateBtn.GetCheck());
+	codecCombo.EnableWindow(codecBtn.GetCheck());
+	audioBitrateEdit.EnableWindow(audioBitrateBtn.GetCheck());
 }
 
 static void RestrictEdit(CEdit& edit, int min, int max)
@@ -105,21 +105,21 @@ static void RestrictEdit(CEdit& edit, int min, int max)
 
 void COutputOptionsDialog::ClampValues()
 {
-	RestrictEdit(m_ResWidthEdit, 4, 4096);
-	RestrictEdit(m_ResHeightEdit, 4, 4096);
-	RestrictEdit(m_FpsEdit, 1, 300);
-	RestrictEdit(m_BitrateEdit, 128, 32768);
-	RestrictEdit(m_AudioBitrateEdit, 16, 1024);
+	RestrictEdit(resWidthEdit, 4, 4096);
+	RestrictEdit(resHeightEdit, 4, 4096);
+	RestrictEdit(fpsEdit, 1, 300);
+	RestrictEdit(bitrateEdit, 128, 32768);
+	RestrictEdit(audioBitrateEdit, 16, 1024);
 }
 
 void COutputOptionsDialog::ReadResult()
 {
 	ClampValues();
-	m_Result.video =
+	result.video =
 	{
 		.resolution =
 		{
-			.enabled = static_cast<int8_t>(m_ResCheck.GetCheck()),
+			.enabled = static_cast<int8_t>(resBtn.GetCheck()),
 			.value =
 			{
 				GetDlgItemInt(IDC_CSET_RES_WIDTH),
@@ -128,30 +128,30 @@ void COutputOptionsDialog::ReadResult()
 		},
 		.fps =
 		{
-			.enabled = static_cast<int8_t>(m_FpsCheck.GetCheck()),
+			.enabled = static_cast<int8_t>(fpsBtn.GetCheck()),
 			.value = GetDlgItemInt(IDC_CSET_FPS)
 		},
 		.bitrate =
 		{
-			.enabled = static_cast<int8_t>(m_BitrateCheck.GetCheck()),
+			.enabled = static_cast<int8_t>(bitrateBtn.GetCheck()),
 			.value =
 			{
 				.rate = GetDlgItemInt(IDC_CSET_BITRATE),
-				.mode = static_cast<BitrateMode>(m_BitrateModeCombo.GetCurSel())
+				.mode = static_cast<BitrateMode>(bitrateModeCombo.GetCurSel())
 			}
 		},
 		.codec =
 		{
-			.enabled = static_cast<int8_t>(m_CodecCheck.GetCheck()),
-			.value = static_cast<Codec>(m_CodecCombo.GetCurSel())
+			.enabled = static_cast<int8_t>(codecBtn.GetCheck()),
+			.value = static_cast<Codec>(codecCombo.GetCurSel())
 		}
 	};
-	m_Result.audio =
+	result.audio =
 	{
-		.mute = static_cast<int8_t>(m_AudioMuteCheck.GetCheck()),
+		.mute = static_cast<int8_t>(audioMuteBtn.GetCheck()),
 		.bitrate =
 		{
-			.enabled = static_cast<int8_t>(m_AudioBitrateCheck.GetCheck()),
+			.enabled = static_cast<int8_t>(audioBitrateBtn.GetCheck()),
 			.value = GetDlgItemInt(IDC_CSET_ADBITRATE)
 		}
 	};

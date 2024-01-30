@@ -4,32 +4,20 @@
 #include "QEdit.h"
 #include "QEditDoc.h"
 
-#include <propkey.h>
-
 IMPLEMENT_DYNCREATE(CQEditDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CQEditDoc, CDocument)
 END_MESSAGE_MAP()
 
-CQEditDoc::CQEditDoc() noexcept
-{
-
-}
-
 CQEditDoc::~CQEditDoc()
 {
-	delete vidHandle;
-	DiscardLoadedFrames();
+	FreeResources();
 }
 
 BOOL CQEditDoc::OnNewDocument()
 {
-	if(!CDocument::OnNewDocument())
-	{
-		return FALSE;
-	}
 	FreeResources();
-	return TRUE;
+	return CDocument::OnNewDocument();
 }
 
 bool CQEditDoc::HasVideo() const
@@ -75,7 +63,6 @@ bool CQEditDoc::SetVideoFile(const char* path)
 	{
 		return false;
 	}
-
 	UpdateAllViews(NULL);
 	return true;
 }
@@ -265,4 +252,5 @@ bool CQEditDoc::WriteFrameToBitmap(const AVFrame* frame, int width, int height, 
 void CQEditDoc::FreeResources()
 {
 	delete vidHandle;
+	DiscardLoadedFrames();
 }

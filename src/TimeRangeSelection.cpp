@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "usermsg.h"
-#include "CTimeRangeSelection.h"
+#include "TimeRangeSelection.h"
 #include <algorithm>
 
 BEGIN_MESSAGE_MAP(CTimeRangeSelection, CWnd)

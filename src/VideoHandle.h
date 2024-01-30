@@ -18,10 +18,10 @@ public:
 	AVCodecContext* Codec() const;
 
 private:
-	VideoHandle();
-
 	CString* filePath = nullptr;
 	AVFormatContext* fContext = nullptr;
 	AVStream* vidStream = nullptr;
 	AVCodecContext* codecContext = nullptr;
+
+	VideoHandle();
 };

@@ -3,11 +3,10 @@
 #include <windows.h>
 #include <string>
 #include <thread>
-#include <functional>
 
 #pragma comment(lib, "shell32.lib")
 
-static void CreateStdBufferThread(std::thread& thread, HANDLE& stdRead, std::function<void(std::string)>& readCallback)
+static void CreateStdBufferThread(std::thread& thread, HANDLE& stdRead, const std::function<void(std::string)>& readCallback)
 {
 	thread = std::thread([&]
 	{
@@ -16,8 +15,7 @@ static void CreateStdBufferThread(std::thread& thread, HANDLE& stdRead, std::fun
 		while(true)
 		{
 			DWORD n = 0;
-			int success = ReadFile(stdRead, buffer, (DWORD)bufferSize, &n, NULL);
-			if(!success || n == 0)
+			if(!ReadFile(stdRead, buffer, (DWORD)bufferSize, &n, NULL) || n == 0)
 			{
 				break;
 			}
@@ -26,7 +24,7 @@ static void CreateStdBufferThread(std::thread& thread, HANDLE& stdRead, std::fun
 	});
 }
 
-bool FFmpegCli::RunCmd(std::string cmd, std::function<void(std::string)> stdOutReadCallback, std::function<void(std::string)> stdErrReadCallback, HANDLE& processHandle)
+bool FFmpegCli::RunCmd(std::string cmd, std::function<void(std::string)> stdOutReadCallback, std::function<void(std::string)> stdErrReadCallback)
 {
 	SECURITY_ATTRIBUTES sa = SECURITY_ATTRIBUTES();
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -35,13 +33,13 @@ bool FFmpegCli::RunCmd(std::string cmd, std::function<void(std::string)> stdOutR
 
 	HANDLE stdOutRead = INVALID_HANDLE_VALUE;
 	HANDLE stdOutWrite = INVALID_HANDLE_VALUE;
-	if(CreatePipe(&stdOutRead, &stdOutWrite, &sa, 0) == false || SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0) == false)
+	if(!CreatePipe(&stdOutRead, &stdOutWrite, &sa, 0) || !SetHandleInformation(stdOutRead, HANDLE_FLAG_INHERIT, 0))
 	{
 		return false;
 	}
 	HANDLE stdErrRead = INVALID_HANDLE_VALUE;
 	HANDLE stdErrWrite = INVALID_HANDLE_VALUE;
-	if(CreatePipe(&stdErrRead, &stdErrWrite, &sa, 0) == false || SetHandleInformation(stdErrRead, HANDLE_FLAG_INHERIT, 0) == false)
+	if(!CreatePipe(&stdErrRead, &stdErrWrite, &sa, 0) || !SetHandleInformation(stdErrRead, HANDLE_FLAG_INHERIT, 0))
 	{
 		if(stdOutRead != INVALID_HANDLE_VALUE)
 		{
@@ -67,7 +65,7 @@ bool FFmpegCli::RunCmd(std::string cmd, std::function<void(std::string)> stdOutR
 
 	char cmdStr[8096];
 	strncpy_s(cmdStr, cmd.c_str(), 8096);
-	cmdStr[8096 - 1] = 0;
+	cmdStr[8096 - 1] = '\0';
 
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
@@ -85,7 +83,6 @@ bool FFmpegCli::RunCmd(std::string cmd, std::function<void(std::string)> stdOutR
 		return false;
 	}
 	CloseHandle(pi.hThread);
-	processHandle = pi.hProcess;
 
 	std::thread stdOutT;
 	CreateStdBufferThread(stdOutT, stdOutRead, stdOutReadCallback);
@@ -105,6 +102,5 @@ bool FFmpegCli::RunCmd(std::string cmd, std::function<void(std::string)> stdOutR
 	}
 	CloseHandle(stdOutRead);
 	CloseHandle(stdErrRead);
-
 	return true;
 }
