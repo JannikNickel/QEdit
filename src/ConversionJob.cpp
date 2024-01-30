@@ -282,7 +282,7 @@ void ConversionJob::ConvertExtern(std::string outFile)
 		{
 			Bitrate bitrate = vSettings.bitrate.value;
 			cmd += std::format(" -b:v {0}k", bitrate.rate);
-			if(bitrate.mode == BitrateMode::CBR)
+			if(bitrate.mode == BitrateMode::VBR)
 			{
 				cmd += std::format(" -minrate {0}k -maxrate {1}k", bitrate.rate, bitrate.rate);
 			}

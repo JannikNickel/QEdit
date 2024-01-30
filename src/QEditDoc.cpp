@@ -96,6 +96,7 @@ void CQEditDoc::DiscardLoadedFrames()
 {
 	for(FrameData frame : frames)
 	{
+		av_frame_unref(frame.frame);
 		av_frame_free(&frame.frame);
 	}
 	frames.clear();
@@ -153,6 +154,7 @@ std::tuple<int64_t, int64_t> CQEditDoc::LoadFrameRange(int64_t lIFrame, int64_t 
 				break;
 			}
 		}
+		av_packet_unref(packet);
 	}
 
 	av_packet_free(&packet);

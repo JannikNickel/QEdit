@@ -20,8 +20,6 @@
 #define ID_PROPERTIES2                  153
 #define ID_EXPAND_ALL                   154
 #define IDS_PROPERTIES_WND              158
-#define IDI_PROPERTIES_WND              167
-#define IDI_PROPERTIES_WND_HC           168
 #define IDR_PROPERTIES                  183
 #define IDB_PROPERTIES_HC               184
 #define IDS_EDIT_MENU                   306
